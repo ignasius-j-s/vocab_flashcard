@@ -7,4 +7,5 @@ interface FlashcardsRepository {
     suspend fun updateFlashcard(flashcard: Flashcard)
     suspend fun deleteFlashcard(flashcard: Flashcard)
     fun getAllFlashcardsStream(): Flow<List<Flashcard>>
+    fun getFlashcardStream(id: Int): Flow<Flashcard?>
 }

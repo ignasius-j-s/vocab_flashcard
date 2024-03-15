@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 
 data class HomeUiState(val flashcardList: List<Flashcard> = listOf())
 
-class HomeViewModel(flashcardRepository: FlashcardsRepository) : ViewModel() {
+class HomeViewModel(private val flashcardRepository: FlashcardsRepository) : ViewModel() {
     val homeUiState: StateFlow<HomeUiState> =
         flashcardRepository.getAllFlashcardsStream().map { HomeUiState(it) }
             .stateIn(
@@ -19,6 +19,12 @@ class HomeViewModel(flashcardRepository: FlashcardsRepository) : ViewModel() {
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = HomeUiState()
             )
+
+    suspend fun saveFlashcard(flashcard: Flashcard) {
+        if (flashcard.name.isNotBlank()) {
+            flashcardRepository.insertFlashcard(flashcard)
+        }
+    }
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L

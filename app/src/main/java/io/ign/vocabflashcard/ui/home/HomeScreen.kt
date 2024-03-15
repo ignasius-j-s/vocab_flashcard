@@ -3,11 +3,14 @@ package io.ign.vocabflashcard.ui.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -15,9 +18,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -30,6 +38,7 @@ import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.Flashcard
 import io.ign.vocabflashcard.ui.AppViewModelProvider
 import io.ign.vocabflashcard.ui.navigation.NavigationDestination
+import kotlinx.coroutines.launch
 
 object HomeDestination : NavigationDestination {
     override val route = "home"
@@ -44,11 +53,13 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val homeUiState by viewModel.homeUiState.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*TODO*/ },
+                onClick = { showDialog = true },
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
             ) {
@@ -61,6 +72,14 @@ fun HomeScreen(
     ) { innerPadding ->
         innerPadding
     }
+
+    NewFlashcardDialog(
+        showDialog,
+        onDismissRequest = { showDialog = false },
+        onOkClick = { flashcard ->
+            coroutineScope.launch { viewModel.saveFlashcard(flashcard) }
+        }
+    )
 }
 
 @Composable
@@ -121,7 +140,66 @@ fun FlashcardEntry(flashcard: Flashcard, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
+@Composable
+fun NewFlashcardDialog(
+    showDialog: Boolean,
+    onDismissRequest: () -> Unit,
+    onOkClick: (Flashcard) -> Unit
+) {
+    var enableOkBtn by remember { mutableStateOf(false) }
+    var flashcardName by remember { mutableStateOf("") }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                flashcardName = ""
+                onDismissRequest()
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val flashcard = Flashcard(name = flashcardName)
+                        flashcardName = ""
+                        onOkClick(flashcard)
+                        onDismissRequest()
+                    },
+                    enabled = enableOkBtn
+                ) {
+                    Text(stringResource(R.string.ok_btn))
+                }
+            },
+            dismissButton = {
+                Button(onClick = {}) {
+                    Text(stringResource(R.string.cancel_btn))
+                }
+            },
+            title = {
+                Text(stringResource(R.string.new_flashcard_dialog_title))
+            },
+            text = {
+                Column {
+                    Text(stringResource(R.string.new_flashcard_dialog_body))
+                    Spacer(modifier = Modifier.padding(3.dp))
+                    TextField(
+                        value = flashcardName,
+                        onValueChange = {
+                            if (it.isNotBlank()) {
+                                enableOkBtn = true
+                            } else {
+                                enableOkBtn = false
+                            }
+
+                            flashcardName = it
+                        },
+                        singleLine = true
+                    )
+                }
+            }
+        )
+    }
+}
+
+//@Preview(showBackground = true)
 @Composable
 fun PreviewFlashcardList() {
     val flashcardList = listOf(
@@ -131,4 +209,10 @@ fun PreviewFlashcardList() {
         Flashcard(3, "Indonesia"),
     )
     FlashcardList(flashcardList = flashcardList, onFlashcardClick = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewNewFlashcardDialog() {
+    NewFlashcardDialog(true, {}, {})
 }
