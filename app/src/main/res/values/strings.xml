@@ -7,4 +7,5 @@
     <string name="new_flashcard_dialog_title">New Flashcard</string>
     <string name="ok_btn">OK</string>
     <string name="cancel_btn">CANCEL</string>
+    <string name="flashcard_title_delete">Delete Flashcard</string>
 </resources>

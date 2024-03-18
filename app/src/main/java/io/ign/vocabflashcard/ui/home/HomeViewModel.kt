@@ -26,6 +26,17 @@ class HomeViewModel(private val flashcardRepository: FlashcardsRepository) : Vie
         }
     }
 
+    suspend fun editFlashcard(flashcard: Flashcard, newName: String) {
+        if (flashcard.name.isNotBlank() && flashcard.name != newName) {
+            flashcardRepository.updateFlashcard(flashcard.copy(name = newName))
+        }
+    }
+
+    suspend fun deleteFlashcard(flashcard: Flashcard) {
+        flashcardRepository.deleteFlashcard(flashcard)
+        // TODO: also delete all children of this flashcard
+    }
+
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }

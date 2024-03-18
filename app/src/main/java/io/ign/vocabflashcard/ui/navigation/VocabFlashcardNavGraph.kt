@@ -19,10 +19,7 @@ fun VocabFlashcardNavHost(
         modifier = modifier,
     ) {
         composable(HomeDestination.route) {
-            HomeScreen(
-                navigateToFlashcardEntry = { /* TODO */ },
-                navigateToFlashcardUpdate = { /* TODO */ }
-            )
+            HomeScreen(navigateToFlashcardEntry = { /* TODO */ })
         }
     }
 }

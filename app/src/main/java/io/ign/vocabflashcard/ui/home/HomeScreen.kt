@@ -4,11 +4,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -48,7 +51,6 @@ object HomeDestination : NavigationDestination {
 @Composable
 fun HomeScreen(
     navigateToFlashcardEntry: () -> Unit,
-    navigateToFlashcardUpdate: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -69,8 +71,17 @@ fun HomeScreen(
                 )
             }
         }
-    ) {
-        FlashcardList(flashcardList = homeUiState.flashcardList, onFlashcardClick = {})
+    ) { innerPadding ->
+        HomeBody(
+            flashcardList = homeUiState.flashcardList,
+            onFlashcardClick = {},
+            onDelete = { flashcard ->
+                coroutineScope.launch { viewModel.deleteFlashcard(flashcard) }
+            },
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        )
     }
 
     NewFlashcardDialog(
@@ -86,6 +97,7 @@ fun HomeScreen(
 fun HomeBody(
     flashcardList: List<Flashcard>,
     onFlashcardClick: (Int) -> Unit,
+    onDelete: (Flashcard) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -101,7 +113,8 @@ fun HomeBody(
         } else {
             FlashcardList(
                 flashcardList = flashcardList,
-                onFlashcardClick = { onFlashcardClick(it.id) }
+                onFlashcardClick = { onFlashcardClick(it.id) },
+                onDelete = onDelete
             )
         }
     }
@@ -111,24 +124,32 @@ fun HomeBody(
 fun FlashcardList(
     flashcardList: List<Flashcard>,
     onFlashcardClick: (Flashcard) -> Unit,
+    onDelete: (Flashcard) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier) {
         items(items = flashcardList, key = { it.id }) { flashcard ->
             FlashcardEntry(
                 flashcard = flashcard,
+                onDelete = onDelete,
                 modifier = Modifier
                     .padding(dimensionResource(R.dimen.padding_small))
                     .clickable { onFlashcardClick(flashcard) }
-
             )
         }
     }
 }
 
 @Composable
-fun FlashcardEntry(flashcard: Flashcard, modifier: Modifier = Modifier) {
-    Card(modifier = modifier, elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+fun FlashcardEntry(
+    flashcard: Flashcard,
+    onDelete: (Flashcard) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
         Column(
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
             verticalArrangement = Arrangement.spacedBy(
@@ -136,6 +157,14 @@ fun FlashcardEntry(flashcard: Flashcard, modifier: Modifier = Modifier) {
             )
         ) {
             Text(text = flashcard.name, style = MaterialTheme.typography.titleLarge)
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(R.string.flashcard_title_delete),
+                modifier = Modifier.clickable {
+                    // TODO: add alert dialog
+                    onDelete(flashcard)
+                }
+            )
         }
     }
 }
@@ -195,7 +224,7 @@ fun NewFlashcardDialog(
     }
 }
 
-//@Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun PreviewFlashcardList() {
     val flashcardList = listOf(
@@ -204,7 +233,7 @@ fun PreviewFlashcardList() {
         Flashcard(2, "Japanese"),
         Flashcard(3, "Indonesia"),
     )
-    FlashcardList(flashcardList = flashcardList, onFlashcardClick = {})
+    FlashcardList(flashcardList = flashcardList, onFlashcardClick = {}, onDelete = {})
 }
 
 @Preview(showBackground = true)
