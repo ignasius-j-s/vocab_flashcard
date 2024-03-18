@@ -156,9 +156,7 @@ fun NewFlashcardDialog(
 
     if (showDialog) {
         AlertDialog(
-            onDismissRequest = {
-                onDismissRequest()
-            },
+            onDismissRequest = { onDismissRequest() },
             confirmButton = {
                 Button(
                     onClick = {
@@ -186,12 +184,7 @@ fun NewFlashcardDialog(
                     TextField(
                         value = flashcardName,
                         onValueChange = {
-                            if (it.isNotBlank()) {
-                                enableOkBtn = true
-                            } else {
-                                enableOkBtn = false
-                            }
-
+                            enableOkBtn = it.isNotBlank()
                             flashcardName = it
                         },
                         singleLine = true
