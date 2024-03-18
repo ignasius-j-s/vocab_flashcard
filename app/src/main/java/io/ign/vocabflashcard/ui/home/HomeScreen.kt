@@ -69,8 +69,8 @@ fun HomeScreen(
                 )
             }
         }
-    ) { innerPadding ->
-        innerPadding
+    ) {
+        FlashcardList(flashcardList = homeUiState.flashcardList, onFlashcardClick = {})
     }
 
     NewFlashcardDialog(
@@ -148,18 +148,21 @@ fun NewFlashcardDialog(
 ) {
     var enableOkBtn by remember { mutableStateOf(false) }
     var flashcardName by remember { mutableStateOf("") }
+    val onDismissRequest = {
+        flashcardName = ""
+        enableOkBtn = false
+        onDismissRequest()
+    }
 
     if (showDialog) {
         AlertDialog(
             onDismissRequest = {
-                flashcardName = ""
                 onDismissRequest()
             },
             confirmButton = {
                 Button(
                     onClick = {
                         val flashcard = Flashcard(name = flashcardName)
-                        flashcardName = ""
                         onOkClick(flashcard)
                         onDismissRequest()
                     },
@@ -169,7 +172,7 @@ fun NewFlashcardDialog(
                 }
             },
             dismissButton = {
-                Button(onClick = {}) {
+                Button(onClick = { onDismissRequest() }) {
                     Text(stringResource(R.string.cancel_btn))
                 }
             },
