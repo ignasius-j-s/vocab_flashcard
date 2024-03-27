@@ -188,7 +188,6 @@ fun FlashcardEntry(
             Text(text = flashcard.name, style = MaterialTheme.typography.titleLarge)
             Row {
                 IconButton(onClick = {
-                    // TODO: add alert dialog
                     onDelete(flashcard)
                 }) {
                     Icon(
