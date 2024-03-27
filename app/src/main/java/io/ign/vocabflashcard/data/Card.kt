@@ -9,6 +9,7 @@ data class Card(
     val id: Int = 0,
     val word: String,
     val note: String,
+    val definition: String,
 
     val flashcardId: Int,
 )
