@@ -9,6 +9,6 @@
     <string name="cancel_btn">CANCEL</string>
     <string name="delete_flashcard_title">Delete Flashcard</string>
     <string name="edit_flashcard_title">Edit Flashcard</string>
-    <string name="edit_flashcard_text">Rename Flashcard</string>
+    <string name="edit_flashcard_text">Rename Flashcard to:</string>
     <string name="delete_flashcard_text">Do you really want to delete this flashcard?</string>
 </resources>

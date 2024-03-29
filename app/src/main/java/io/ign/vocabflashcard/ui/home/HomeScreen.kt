@@ -1,7 +1,6 @@
 package io.ign.vocabflashcard.ui.home
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,9 +41,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.Flashcard
@@ -48,14 +54,16 @@ import io.ign.vocabflashcard.ui.AppViewModelProvider
 import io.ign.vocabflashcard.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
 
-object HomeDestination : NavigationDestination {
+object HomeScreenDestination : NavigationDestination {
     override val route = "home"
-    override val titleRes = R.string.app_name
+
+    val title = R.string.app_name
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navigateToFlashcardEntry: () -> Unit,
+    navigateToFlashcardEntry: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -67,6 +75,9 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(stringResource(HomeScreenDestination.title)) })
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showNewDialog = true },
@@ -82,16 +93,16 @@ fun HomeScreen(
     ) { innerPadding ->
         HomeBody(
             flashcardList = homeUiState.flashcardList,
-            onFlashcardClick = {},
+            onFlashcardClick = { id -> navigateToFlashcardEntry(id) },
             onDelete = { flashcard ->
-                showDeleteDialog = true
                 selectedFlashcard = flashcard
+                showDeleteDialog = true
             },
             onEdit = { flashcard ->
-                showEditDialog = true
                 selectedFlashcard = flashcard
+                showEditDialog = true
             },
-            modifier = Modifier
+            modifier = modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         )
@@ -142,7 +153,7 @@ fun HomeBody(
             onFlashcardClick = { onFlashcardClick(it.id) },
             onDelete = onDelete,
             onEdit = onEdit,
-            modifier
+            modifier.padding(dimensionResource(R.dimen.padding_small))
         )
     }
 }
@@ -155,54 +166,56 @@ fun FlashcardList(
     onEdit: (Flashcard) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier) {
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+    ) {
         items(items = flashcardList, key = { it.id }) { flashcard ->
             FlashcardEntry(
                 flashcard = flashcard,
+                onFlashcardClick = onFlashcardClick,
                 onDelete = onDelete,
-                onEdit = onEdit,
-                modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
-                    .clickable { onFlashcardClick(flashcard) }
+                onEdit = onEdit
             )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlashcardEntry(
     flashcard: Flashcard,
+    onFlashcardClick: (Flashcard) -> Unit,
     onDelete: (Flashcard) -> Unit,
     onEdit: (Flashcard) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth()
+        onClick = { onFlashcardClick(flashcard) },
+        shape = RoundedCornerShape(dimensionResource(R.dimen.card_round)),
+        modifier = modifier
+            .fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
-            verticalArrangement = Arrangement.spacedBy(
-                dimensionResource(R.dimen.padding_small)
-            )
+        Row(
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = flashcard.name, style = MaterialTheme.typography.titleLarge)
-            Row {
-                IconButton(onClick = {
-                    onDelete(flashcard)
-                }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = stringResource(R.string.delete_flashcard_title),
-                    )
-                }
-                IconButton(onClick = { onEdit(flashcard) }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Edit,
-                        contentDescription = stringResource(R.string.edit_flashcard_title),
-                    )
-                }
+            IconButton(onClick = { onEdit(flashcard) }) {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = stringResource(R.string.edit_flashcard_title)
+                )
+            }
+            IconButton(onClick = {
+                onDelete(flashcard)
+            }) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = stringResource(R.string.delete_flashcard_title)
+                )
             }
         }
+        Text(text = flashcard.name, style = MaterialTheme.typography.titleLarge)
     }
 }
 
@@ -320,14 +333,19 @@ fun FlashcardDialog(
             text = {
                 Column {
                     Text(stringResource(text))
-                    Spacer(modifier = Modifier.padding(3.dp))
+                    Spacer(Modifier.padding(2.dp))
                     TextField(
                         value = flashcardName,
                         onValueChange = {
                             enableOkButton = it.isNotBlank()
                             flashcardName = it
                         },
-                        singleLine = true
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        shape = MaterialTheme.shapes.extraSmall,
+                        textStyle = TextStyle.Default.copy(
+                            fontSize = 16.sp
+                        )
                     )
                 }
             }
@@ -350,7 +368,17 @@ fun PreviewFlashcardList() {
         Flashcard(2, "Japanese"),
         Flashcard(3, "Indonesia"),
     )
-    FlashcardList(flashcardList = flashcardList, onFlashcardClick = {}, onDelete = {}, onEdit = {})
+    FlashcardList(
+        flashcardList = flashcardList,
+        onFlashcardClick = {},
+        onDelete = {},
+        onEdit = {},
+        modifier = Modifier.padding(
+            dimensionResource(
+                id = R.dimen.padding_small
+            )
+        )
+    )
 }
 
 @Preview(showBackground = true)
@@ -358,3 +386,10 @@ fun PreviewFlashcardList() {
 fun PreviewNewFlashcardDialog() {
     NewFlashcardDialog(true, {}, {})
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDeleteFlashcardDialog() {
+    DeleteFlashcardDialog(true, {}, {})
+}
+

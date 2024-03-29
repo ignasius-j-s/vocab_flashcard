@@ -3,9 +3,13 @@ package io.ign.vocabflashcard.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import io.ign.vocabflashcard.ui.home.HomeDestination
+import androidx.navigation.navArgument
+import io.ign.vocabflashcard.ui.flashcard.FlashcardScreen
+import io.ign.vocabflashcard.ui.flashcard.FlashcardScreenDestination
+import io.ign.vocabflashcard.ui.home.HomeScreenDestination
 import io.ign.vocabflashcard.ui.home.HomeScreen
 
 @Composable
@@ -15,11 +19,26 @@ fun VocabFlashcardNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = HomeDestination.route,
+        startDestination = HomeScreenDestination.route,
         modifier = modifier,
     ) {
-        composable(HomeDestination.route) {
-            HomeScreen(navigateToFlashcardEntry = { /* TODO */ })
+        composable(HomeScreenDestination.route) {
+            HomeScreen(
+                navigateToFlashcardEntry = { id ->
+                    navController.navigate(FlashcardScreenDestination.route + "/$id")
+                }
+            )
+        }
+        composable(
+            FlashcardScreenDestination.routeWithArg,
+            arguments = listOf(
+                navArgument(
+                    FlashcardScreenDestination.idArg,
+                    builder = { type = NavType.IntType }
+                )
+            )
+        ) {
+            FlashcardScreen()
         }
     }
 }
