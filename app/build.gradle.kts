@@ -68,12 +68,15 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // Navigation
-    val nav_version = "2.7.7"
-    implementation("androidx.navigation:navigation-compose:$nav_version")
+    val navVersion = "2.7.7"
+    implementation("androidx.navigation:navigation-compose:$navVersion")
 
     // Room
-    val room_version = "2.6.1"
-    implementation("androidx.room:room-runtime:$room_version")
-    ksp("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+
+    // Datastore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 }
