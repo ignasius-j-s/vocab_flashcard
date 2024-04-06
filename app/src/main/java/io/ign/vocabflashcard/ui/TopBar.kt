@@ -16,12 +16,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun TopBar(title: String = "Title", canNavigateBack: Boolean, onNavBackClick: () -> Unit = {}) {
+fun TopBar(
+    title: String = "Title",
+    canNavigateBack: Boolean,
+    onNavBackClick: () -> Unit = {},
+    showSettingButton: Boolean = true,
+    actions: @Composable () -> Unit = {}
+) {
     TopAppBar(
         title = { Text(title) },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
         ),
         navigationIcon = {
             if (canNavigateBack) {
@@ -29,18 +35,21 @@ fun TopBar(title: String = "Title", canNavigateBack: Boolean, onNavBackClick: ()
                     Icon(
                         Icons.Filled.ArrowBack,
                         contentDescription = "navBack",
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
         },
         actions = {
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = "settings",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+            actions()
+            if (showSettingButton) {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "settings",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
             }
         }
     )
