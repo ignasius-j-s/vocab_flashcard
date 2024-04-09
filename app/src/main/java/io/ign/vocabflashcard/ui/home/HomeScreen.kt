@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -103,27 +104,33 @@ fun HomeScreen(
         )
     }
 
-    NewFlashcardDialog(
-        showNewDialog,
-        onDismiss = { showNewDialog = false },
-        onOkClick = { flashcard ->
-            coroutineScope.launch { viewModel.saveFlashcard(flashcard) }
-        }
-    )
-    EditFlashcardDialog(
-        showEditDialog,
-        onDismiss = { showEditDialog = false },
-        onOkClick = { flashcardName ->
-            coroutineScope.launch { viewModel.editFlashcard(selectedFlashcard, flashcardName) }
-        }
-    )
-    DeleteFlashcardDialog(
-        showDeleteDialog,
-        onDismiss = { showDeleteDialog = false },
-        onOkClick = {
-            coroutineScope.launch { viewModel.deleteFlashcard(selectedFlashcard) }
-        }
-    )
+    if (showNewDialog) {
+        NewFlashcardDialog(
+            onDismiss = { showNewDialog = false },
+            onOkClick = { flashcard ->
+                coroutineScope.launch { viewModel.saveFlashcard(flashcard) }
+            }
+        )
+    }
+
+    if (showEditDialog) {
+        EditFlashcardDialog(
+            value = selectedFlashcard.name,
+            onDismiss = { showEditDialog = false },
+            onOkClick = { flashcardName ->
+                coroutineScope.launch { viewModel.editFlashcard(selectedFlashcard, flashcardName) }
+            }
+        )
+    }
+
+    if (showDeleteDialog) {
+        DeleteFlashcardDialog(
+            onDismiss = { showDeleteDialog = false },
+            onOkClick = {
+                coroutineScope.launch { viewModel.deleteFlashcard(selectedFlashcard) }
+            }
+        )
+    }
 }
 
 @Composable
@@ -148,7 +155,7 @@ fun HomeBody(
             onFlashcardClick = { onFlashcardClick(it.id) },
             onDelete = onDelete,
             onEdit = onEdit,
-            modifier.padding(dimensionResource(R.dimen.padding_small))
+            modifier
         )
     }
 }
@@ -163,7 +170,8 @@ fun FlashcardList(
 ) {
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+        contentPadding = PaddingValues(dimensionResource(R.dimen.padding_extra_small)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_extra_small))
     ) {
         items(items = flashcardList, key = { it.id }) { flashcard ->
             FlashcardEntry(
@@ -226,12 +234,10 @@ fun FlashcardEntry(
 
 @Composable
 fun NewFlashcardDialog(
-    showDialog: Boolean,
     onDismiss: () -> Unit,
     onOkClick: (Flashcard) -> Unit
 ) {
     FlashcardDialog(
-        showDialog = showDialog,
         onDismiss = onDismiss,
         onOkClick = { flashcardName ->
             val flashcard = Flashcard(name = flashcardName)
@@ -244,12 +250,12 @@ fun NewFlashcardDialog(
 
 @Composable
 fun EditFlashcardDialog(
-    showDialog: Boolean,
+    value: String,
     onDismiss: () -> Unit,
     onOkClick: (String) -> Unit
 ) {
     FlashcardDialog(
-        showDialog = showDialog,
+        value,
         onDismiss = onDismiss,
         onOkClick = onOkClick,
         title = R.string.edit_flashcard_title,
@@ -259,98 +265,88 @@ fun EditFlashcardDialog(
 
 @Composable
 fun DeleteFlashcardDialog(
-    showDialog: Boolean,
     onDismiss: () -> Unit,
     onOkClick: () -> Unit
 ) {
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onOkClick()
-                        onDismiss()
-                    },
-                ) {
-                    Text(stringResource(R.string.ok_btn))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.cancel_btn))
-                }
-            },
-            title = {
-                Text(stringResource(R.string.delete_flashcard_title))
-            },
-            text = {
-                Text(stringResource(R.string.delete_flashcard_text))
-            },
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Warning,
-                    contentDescription = stringResource(R.string.delete_flashcard_title)
-                )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onOkClick()
+                    onDismiss()
+                },
+            ) {
+                Text(stringResource(R.string.ok_btn))
             }
-        )
-    }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel_btn))
+            }
+        },
+        title = {
+            Text(stringResource(R.string.delete_flashcard_title))
+        },
+        text = {
+            Text(stringResource(R.string.delete_flashcard_text))
+        },
+        icon = {
+            Icon(
+                imageVector = Icons.Outlined.Warning,
+                contentDescription = stringResource(R.string.delete_flashcard_title)
+            )
+        }
+    )
 }
 
 @Composable
 fun FlashcardDialog(
-    showDialog: Boolean,
+    value: String = "",
     onDismiss: () -> Unit,
     onOkClick: (String) -> Unit,
     @StringRes title: Int,
     @StringRes text: Int
 ) {
     var enableOkButton by remember { mutableStateOf(false) }
-    var flashcardName by remember { mutableStateOf("") }
-    val onDismissRequest = {
-        flashcardName = ""
-        enableOkButton = false
-        onDismiss()
-    }
+    var flashcardName by remember { mutableStateOf(value) }
 
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = onDismissRequest,
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onOkClick(flashcardName)
-                        onDismissRequest()
-                    },
-                    enabled = enableOkButton
-                ) {
-                    Text(stringResource(R.string.ok_btn))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { onDismissRequest() }) {
-                    Text(stringResource(R.string.cancel_btn))
-                }
-            },
-            title = {
-                Text(stringResource(title))
-            },
-            text = {
-                Column {
-                    Text(stringResource(text))
-                    Spacer(Modifier.padding(6.dp))
-                    CustomTextField(
-                        value = flashcardName,
-                        onValueChange = {
-                            enableOkButton = it.isNotBlank()
-                            flashcardName = it
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onOkClick(flashcardName)
+                    onDismiss()
+                },
+                enabled = enableOkButton
+            ) {
+                Text(stringResource(R.string.ok_btn))
             }
-        )
-    }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text(stringResource(R.string.cancel_btn))
+            }
+        },
+        title = {
+            Text(stringResource(title))
+        },
+        text = {
+            Column {
+                Text(stringResource(text))
+                Spacer(Modifier.padding(6.dp))
+                CustomTextField(
+                    value = flashcardName,
+                    onValueChange = {
+                        enableOkButton = it.isNotBlank()
+                        flashcardName = it
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true)
@@ -384,12 +380,11 @@ fun PreviewFlashcardList() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewNewFlashcardDialog() {
-    NewFlashcardDialog(true, {}, {})
+    NewFlashcardDialog({}, {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewDeleteFlashcardDialog() {
-    DeleteFlashcardDialog(true, {}, {})
+    DeleteFlashcardDialog({}, {})
 }
-

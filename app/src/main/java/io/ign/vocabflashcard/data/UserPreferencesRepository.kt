@@ -14,8 +14,8 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
         val DESCENDING = booleanPreferencesKey("descending")
     }
 
-    val sortOrder: Flow<String> = dataStore.data.map { it[SORT_ORDER] ?: "" }
-    val descending: Flow<Boolean> = dataStore.data.map { it[DESCENDING] ?: true }
+    val sortOrder: Flow<String> = dataStore.data.map { it[SORT_ORDER] ?: "Name" }
+    val descending: Flow<Boolean> = dataStore.data.map { it[DESCENDING] ?: false }
 
     suspend fun saveSortOrder(value: String) {
         dataStore.edit { it[SORT_ORDER] = value }

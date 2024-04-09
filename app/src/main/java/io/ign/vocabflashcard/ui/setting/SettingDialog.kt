@@ -1,4 +1,4 @@
-package io.ign.vocabflashcard.ui
+package io.ign.vocabflashcard.ui.setting
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -37,7 +37,7 @@ fun SettingDialog() {
                     RadioButton(selected = false, onClick = { /*TODO*/ })
                     Text("Name")
                     RadioButton(selected = false, onClick = { /*TODO*/ })
-                    Text("Date")
+                    Text("Time")
                 }
                 Divider()
                 Row(verticalAlignment = Alignment.CenterVertically) {

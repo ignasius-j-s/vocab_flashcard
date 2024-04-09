@@ -13,7 +13,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import io.ign.vocabflashcard.R
 
 @Composable
 fun TopBar(
@@ -51,7 +55,8 @@ fun TopBar(
                     )
                 }
             }
-        }
+        },
+        modifier = Modifier.shadow(dimensionResource(R.dimen.shadow_small))
     )
 }
 

@@ -29,8 +29,9 @@ fun CustomTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val interactionSource = MutableInteractionSource()
+    val interactionSource = remember { MutableInteractionSource() }
     val state by interactionSource.collectIsFocusedAsState()
+
     BasicTextField(
         value = value,
         onValueChange = { onValueChange(it) },
@@ -44,7 +45,7 @@ fun CustomTextField(
         modifier = modifier.indicatorLine(
             enabled = state,
             isError = false,
-            interactionSource = interactionSource,
+            interactionSource = MutableInteractionSource(),
             colors = TextFieldDefaults.colors(),
             focusedIndicatorLineThickness = TextFieldDefaults.FocusedIndicatorThickness,
             unfocusedIndicatorLineThickness = TextFieldDefaults.UnfocusedIndicatorThickness,
