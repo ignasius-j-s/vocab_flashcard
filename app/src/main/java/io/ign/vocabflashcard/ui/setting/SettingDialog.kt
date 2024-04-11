@@ -11,17 +11,30 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
+import io.ign.vocabflashcard.ui.AppViewModelProvider
+import kotlinx.coroutines.launch
+
 
 @Composable
-fun SettingDialog() {
+fun SettingDialog(
+    onDismissRequest: () -> Unit,
+    viewModel: SettingViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val settingUiState by viewModel.settingUiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
     AlertDialog(
-        onDismissRequest = { /*TODO*/ },
+        onDismissRequest = onDismissRequest,
         title = { Text("Settings") },
         text = {
             Column {
@@ -34,9 +47,15 @@ fun SettingDialog() {
                             .padding(vertical = dimensionResource(R.dimen.padding_medium))
                             .weight(1f)
                     )
-                    RadioButton(selected = false, onClick = { /*TODO*/ })
+                    RadioButton(
+                        selected = settingUiState.sortOrder == "Name",
+                        onClick = { coroutineScope.launch { viewModel.saveSortOrder("Name") } }
+                    )
                     Text("Name")
-                    RadioButton(selected = false, onClick = { /*TODO*/ })
+                    RadioButton(
+                        selected = settingUiState.sortOrder == "Time",
+                        onClick = { coroutineScope.launch { viewModel.saveSortOrder("Time") } }
+                    )
                     Text("Time")
                 }
                 Divider()
@@ -48,7 +67,12 @@ fun SettingDialog() {
                             .padding(vertical = dimensionResource(R.dimen.padding_medium))
                             .weight(1f)
                     )
-                    Checkbox(checked = true, onCheckedChange = {})
+                    Checkbox(
+                        checked = settingUiState.descending,
+                        onCheckedChange = {
+                            coroutineScope.launch { viewModel.saveDescending(!settingUiState.descending) }
+                        }
+                    )
                 }
                 Divider()
             }
@@ -56,7 +80,7 @@ fun SettingDialog() {
         confirmButton = {
             Text(
                 stringResource(R.string.ok_btn),
-                modifier = Modifier.clickable { }
+                modifier = Modifier.clickable { onDismissRequest() }
             )
         }
     )
@@ -66,6 +90,6 @@ fun SettingDialog() {
 @Composable
 fun PreviewSettingDialog() {
     MaterialTheme {
-        SettingDialog()
+        SettingDialog({})
     }
 }

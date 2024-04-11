@@ -6,11 +6,16 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import io.ign.vocabflashcard.VocabFlashcardApplication
 import io.ign.vocabflashcard.ui.home.HomeViewModel
+import io.ign.vocabflashcard.ui.setting.SettingViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             HomeViewModel(vocabFlashcardApplication().container.flashcardsRepository)
+        }
+
+        initializer {
+            SettingViewModel(vocabFlashcardApplication().container.userPrefsRepository)
         }
     }
 }
