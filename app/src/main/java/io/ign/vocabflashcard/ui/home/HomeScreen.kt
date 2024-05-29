@@ -1,25 +1,23 @@
 package io.ign.vocabflashcard.ui.home
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -43,10 +41,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
-import io.ign.vocabflashcard.data.Flashcard
+import io.ign.vocabflashcard.data.Group
 import io.ign.vocabflashcard.ui.AppViewModelProvider
 import io.ign.vocabflashcard.ui.CustomTextField
 import io.ign.vocabflashcard.ui.TopBar
@@ -59,7 +56,7 @@ object HomeScreenDestination : NavigationDestination {
 
 @Composable
 fun HomeScreen(
-    navigateToFlashcardEntry: (Int) -> Unit,
+    navigateToGroupEntry: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -67,7 +64,7 @@ fun HomeScreen(
     var showNewDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var selectedFlashcard by remember { mutableStateOf(Flashcard(name = "")) }
+    var selectedGroup by remember { mutableStateOf(Group(name = "")) }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -82,20 +79,20 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_flashcard_title)
+                    contentDescription = stringResource(R.string.group_add_title)
                 )
             }
         }
     ) { innerPadding ->
         HomeBody(
-            flashcardList = homeUiState.flashcardList,
-            onFlashcardClick = { id -> navigateToFlashcardEntry(id) },
-            onDelete = { flashcard ->
-                selectedFlashcard = flashcard
+            groupList = homeUiState.groupList,
+            onGroupClick = { id -> navigateToGroupEntry(id) },
+            onDelete = { group ->
+                selectedGroup = group
                 showDeleteDialog = true
             },
-            onEdit = { flashcard ->
-                selectedFlashcard = flashcard
+            onEdit = { group ->
+                selectedGroup = group
                 showEditDialog = true
             },
             modifier = modifier
@@ -105,29 +102,29 @@ fun HomeScreen(
     }
 
     if (showNewDialog) {
-        NewFlashcardDialog(
+        NewGroupDialog(
             onDismiss = { showNewDialog = false },
-            onOkClick = { flashcard ->
-                coroutineScope.launch { viewModel.saveFlashcard(flashcard) }
+            onOkClick = { group ->
+                coroutineScope.launch { viewModel.saveGroup(group) }
             }
         )
     }
 
     if (showEditDialog) {
-        EditFlashcardDialog(
-            value = selectedFlashcard.name,
+        EditGroupDialog(
+            value = selectedGroup.name,
             onDismiss = { showEditDialog = false },
-            onOkClick = { flashcardName ->
-                coroutineScope.launch { viewModel.editFlashcard(selectedFlashcard, flashcardName) }
+            onOkClick = { groupName ->
+                coroutineScope.launch { viewModel.editGroup(selectedGroup, groupName) }
             }
         )
     }
 
     if (showDeleteDialog) {
-        DeleteFlashcardDialog(
+        DeleteGroupDialog(
             onDismiss = { showDeleteDialog = false },
             onOkClick = {
-                coroutineScope.launch { viewModel.deleteFlashcard(selectedFlashcard) }
+                coroutineScope.launch { viewModel.deleteGroup(selectedGroup) }
             }
         )
     }
@@ -135,24 +132,24 @@ fun HomeScreen(
 
 @Composable
 fun HomeBody(
-    flashcardList: List<Flashcard>,
-    onFlashcardClick: (Int) -> Unit,
-    onDelete: (Flashcard) -> Unit,
-    onEdit: (Flashcard) -> Unit,
+    groupList: List<Group>,
+    onGroupClick: (Int) -> Unit,
+    onDelete: (Group) -> Unit,
+    onEdit: (Group) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (flashcardList.isEmpty()) {
+    if (groupList.isEmpty()) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
-                text = stringResource(R.string.no_flashcard_description),
+                text = stringResource(R.string.group_nonexsistent_description),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge
             )
         }
     } else {
-        FlashcardList(
-            flashcardList = flashcardList,
-            onFlashcardClick = { onFlashcardClick(it.id) },
+        GroupList(
+            groupList = groupList,
+            onGroupClick = { onGroupClick(it.id) },
             onDelete = onDelete,
             onEdit = onEdit,
             modifier
@@ -161,11 +158,11 @@ fun HomeBody(
 }
 
 @Composable
-fun FlashcardList(
-    flashcardList: List<Flashcard>,
-    onFlashcardClick: (Flashcard) -> Unit,
-    onDelete: (Flashcard) -> Unit,
-    onEdit: (Flashcard) -> Unit,
+fun GroupList(
+    groupList: List<Group>,
+    onGroupClick: (Group) -> Unit,
+    onDelete: (Group) -> Unit,
+    onEdit: (Group) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -173,10 +170,10 @@ fun FlashcardList(
         contentPadding = PaddingValues(dimensionResource(R.dimen.padding_extra_small)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_extra_small))
     ) {
-        items(items = flashcardList, key = { it.id }) { flashcard ->
-            FlashcardEntry(
-                flashcard = flashcard,
-                onFlashcardClick = onFlashcardClick,
+        items(items = groupList, key = { it.id }) { group ->
+            GroupEntry(
+                group = group,
+                onGroupClick = onGroupClick,
                 onDelete = onDelete,
                 onEdit = onEdit
             )
@@ -186,18 +183,18 @@ fun FlashcardList(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FlashcardEntry(
-    flashcard: Flashcard,
-    onFlashcardClick: (Flashcard) -> Unit,
-    onDelete: (Flashcard) -> Unit,
-    onEdit: (Flashcard) -> Unit,
+fun GroupEntry(
+    group: Group,
+    onGroupClick: (Group) -> Unit,
+    onDelete: (Group) -> Unit,
+    onEdit: (Group) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        onClick = { onFlashcardClick(flashcard) },
-        shape = RoundedCornerShape(dimensionResource(R.dimen.card_round)),
+    Box(
+//        shape = RoundedCornerShape(dimensionResource(R.dimen.card_round)),
         modifier = modifier
             .fillMaxWidth()
+            .clickable { onGroupClick(group) }
     ) {
         Row(
             horizontalArrangement = Arrangement.End,
@@ -205,26 +202,26 @@ fun FlashcardEntry(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = flashcard.name,
-                style = MaterialTheme.typography.titleLarge,
+                text = group.name,
+                style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .padding(dimensionResource(R.dimen.padding_medium))
                     .weight(1f)
             )
-            IconButton(onClick = { onEdit(flashcard) }) {
+            IconButton(onClick = { onEdit(group) }) {
                 Icon(
                     imageVector = Icons.Outlined.Edit,
-                    contentDescription = stringResource(R.string.edit_flashcard_title)
+                    contentDescription = stringResource(R.string.group_edit_title)
                 )
             }
             IconButton(onClick = {
-                onDelete(flashcard)
+                onDelete(group)
             }) {
                 Icon(
                     imageVector = Icons.Outlined.Delete,
-                    contentDescription = stringResource(R.string.delete_flashcard_title),
+                    contentDescription = stringResource(R.string.group_delete_title),
                     tint = Color(0xFFEF5350)
                 )
             }
@@ -233,38 +230,36 @@ fun FlashcardEntry(
 }
 
 @Composable
-fun NewFlashcardDialog(
+fun NewGroupDialog(
     onDismiss: () -> Unit,
-    onOkClick: (Flashcard) -> Unit
+    onOkClick: (Group) -> Unit
 ) {
-    FlashcardDialog(
+    GroupDialog(
         onDismiss = onDismiss,
-        onOkClick = { flashcardName ->
-            val flashcard = Flashcard(name = flashcardName)
-            onOkClick(flashcard)
+        onOkClick = { groupName ->
+            val group = Group(name = groupName)
+            onOkClick(group)
         },
-        title = R.string.new_flashcard_title,
-        text = R.string.new_flashcard_text
+        title = R.string.group_add_title,
     )
 }
 
 @Composable
-fun EditFlashcardDialog(
+fun EditGroupDialog(
     value: String,
     onDismiss: () -> Unit,
     onOkClick: (String) -> Unit
 ) {
-    FlashcardDialog(
+    GroupDialog(
         value,
         onDismiss = onDismiss,
         onOkClick = onOkClick,
-        title = R.string.edit_flashcard_title,
-        text = R.string.edit_flashcard_text
+        title = R.string.group_edit_title,
     )
 }
 
 @Composable
-fun DeleteFlashcardDialog(
+fun DeleteGroupDialog(
     onDismiss: () -> Unit,
     onOkClick: () -> Unit
 ) {
@@ -286,37 +281,36 @@ fun DeleteFlashcardDialog(
             }
         },
         title = {
-            Text(stringResource(R.string.delete_flashcard_title))
+            Text(stringResource(R.string.group_delete_title))
         },
         text = {
-            Text(stringResource(R.string.delete_flashcard_text))
+            Text(stringResource(R.string.group_delete_confirmation))
         },
         icon = {
             Icon(
                 imageVector = Icons.Outlined.Warning,
-                contentDescription = stringResource(R.string.delete_flashcard_title)
+                contentDescription = stringResource(R.string.group_delete_title)
             )
         }
     )
 }
 
 @Composable
-fun FlashcardDialog(
+fun GroupDialog(
     value: String = "",
     onDismiss: () -> Unit,
     onOkClick: (String) -> Unit,
     @StringRes title: Int,
-    @StringRes text: Int
 ) {
     var enableOkButton by remember { mutableStateOf(false) }
-    var flashcardName by remember { mutableStateOf(value) }
+    var groupName by remember { mutableStateOf(value) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
                 onClick = {
-                    onOkClick(flashcardName)
+                    onOkClick(groupName)
                     onDismiss()
                 },
                 enabled = enableOkButton
@@ -334,13 +328,11 @@ fun FlashcardDialog(
         },
         text = {
             Column {
-                Text(stringResource(text))
-                Spacer(Modifier.padding(6.dp))
                 CustomTextField(
-                    value = flashcardName,
+                    value = groupName,
                     onValueChange = {
                         enableOkButton = it.isNotBlank()
-                        flashcardName = it
+                        groupName = it
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -351,22 +343,22 @@ fun FlashcardDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewEmptyFlashcard() {
-    HomeBody(flashcardList = listOf(), onFlashcardClick = {}, onDelete = {}, onEdit = {})
+fun PreviewEmptyGroup() {
+    HomeBody(groupList = listOf(), onGroupClick = {}, onDelete = {}, onEdit = {})
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewFlashcardList() {
-    val flashcardList = listOf(
-        Flashcard(0, "English"),
-        Flashcard(1, "French"),
-        Flashcard(2, "Japanese"),
-        Flashcard(3, "Indonesia"),
+fun PreviewGroupList() {
+    val groupList = listOf(
+        Group(0, "English"),
+        Group(1, "French"),
+        Group(2, "Japanese"),
+        Group(3, "Indonesia"),
     )
-    FlashcardList(
-        flashcardList = flashcardList,
-        onFlashcardClick = {},
+    GroupList(
+        groupList = groupList,
+        onGroupClick = {},
         onDelete = {},
         onEdit = {},
         modifier = Modifier.padding(
@@ -379,12 +371,12 @@ fun PreviewFlashcardList() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewNewFlashcardDialog() {
-    NewFlashcardDialog({}, {})
+fun PreviewNewGroupDialog() {
+    NewGroupDialog({}, {})
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewDeleteFlashcardDialog() {
-    DeleteFlashcardDialog({}, {})
+fun PreviewDeleteGroupDialog() {
+    DeleteGroupDialog({}, {})
 }

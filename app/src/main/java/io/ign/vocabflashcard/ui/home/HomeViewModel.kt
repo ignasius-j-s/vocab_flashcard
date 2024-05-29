@@ -2,39 +2,39 @@ package io.ign.vocabflashcard.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.ign.vocabflashcard.data.Flashcard
-import io.ign.vocabflashcard.data.FlashcardsRepository
+import io.ign.vocabflashcard.data.Group
+import io.ign.vocabflashcard.data.GroupsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-data class HomeUiState(val flashcardList: List<Flashcard> = listOf())
+data class HomeUiState(val groupList: List<Group> = listOf())
 
-class HomeViewModel(private val flashcardRepository: FlashcardsRepository) : ViewModel() {
+class HomeViewModel(private val groupsRepository: GroupsRepository) : ViewModel() {
     val homeUiState: StateFlow<HomeUiState> =
-        flashcardRepository.getAllFlashcardsStream().map { HomeUiState(it) }
+        groupsRepository.getAllGroupsStream().map { HomeUiState(it) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = HomeUiState()
             )
 
-    suspend fun saveFlashcard(flashcard: Flashcard) {
-        if (flashcard.name.isNotBlank()) {
-            flashcardRepository.insertFlashcard(flashcard)
+    suspend fun saveGroup(group: Group) {
+        if (group.name.isNotBlank()) {
+            groupsRepository.insertGroup(group)
         }
     }
 
-    suspend fun editFlashcard(flashcard: Flashcard, newName: String) {
-        if (flashcard.name.isNotBlank() && flashcard.name != newName) {
-            flashcardRepository.updateFlashcard(flashcard.copy(name = newName))
+    suspend fun editGroup(group: Group, newName: String) {
+        if (group.name.isNotBlank() && group.name != newName) {
+            groupsRepository.updateGroup(group.copy(name = newName))
         }
     }
 
-    suspend fun deleteFlashcard(flashcard: Flashcard) {
-        flashcardRepository.deleteFlashcard(flashcard)
-        // TODO: also delete all children of this flashcard
+    suspend fun deleteGroup(group: Group) {
+        groupsRepository.deleteGroup(group)
+        // TODO: also delete all children of this group
     }
 
     companion object {

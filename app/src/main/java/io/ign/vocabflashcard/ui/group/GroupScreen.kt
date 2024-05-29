@@ -1,4 +1,4 @@
-package io.ign.vocabflashcard.ui.flashcard
+package io.ign.vocabflashcard.ui.group
 
 import androidx.compose.runtime.Composable
 import io.ign.vocabflashcard.ui.navigation.NavigationDestination

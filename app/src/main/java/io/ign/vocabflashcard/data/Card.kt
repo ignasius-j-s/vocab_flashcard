@@ -11,5 +11,5 @@ data class Card(
     val note: String,
     val definition: String,
 
-    val flashcardId: Int,
+    val groupId: Int,
 )
