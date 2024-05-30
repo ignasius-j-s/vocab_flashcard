@@ -2,18 +2,28 @@ package io.ign.vocabflashcard.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.ign.vocabflashcard.data.CardsRepository
 import io.ign.vocabflashcard.data.Group
 import io.ign.vocabflashcard.data.GroupsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
-data class HomeUiState(val groupList: List<Group> = listOf())
+data class HomeUiState(val groupList: List<Group> = listOf(), val favFlashcardCount: Int = 0)
 
-class HomeViewModel(private val groupsRepository: GroupsRepository) : ViewModel() {
+class HomeViewModel(
+    private val groupsRepository: GroupsRepository,
+    private val cardsRepository: CardsRepository
+) : ViewModel() {
     val homeUiState: StateFlow<HomeUiState> =
-        groupsRepository.getAllGroupsStream().map { HomeUiState(it) }
+        groupsRepository.getAllGroupsStream()
+            .combine(cardsRepository.getFavoriteCardsCount()) { groupList, favFlashcardCount ->
+                HomeUiState(
+                    groupList,
+                    favFlashcardCount
+                )
+            }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),

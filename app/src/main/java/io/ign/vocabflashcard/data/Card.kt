@@ -10,6 +10,7 @@ data class Card(
     val word: String,
     val note: String,
     val definition: String,
+    val favorite: Boolean,
 
     val groupId: Int,
 )

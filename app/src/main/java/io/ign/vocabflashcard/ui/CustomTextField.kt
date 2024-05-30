@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,7 +50,8 @@ fun CustomTextField(
             colors = TextFieldDefaults.colors(),
             focusedIndicatorLineThickness = TextFieldDefaults.FocusedIndicatorThickness,
             unfocusedIndicatorLineThickness = TextFieldDefaults.UnfocusedIndicatorThickness,
-        )
+        ),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimaryContainer)
     )
 }
 
