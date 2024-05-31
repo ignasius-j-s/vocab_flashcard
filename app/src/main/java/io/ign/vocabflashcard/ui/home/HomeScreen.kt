@@ -94,7 +94,7 @@ fun HomeScreen(
     ) { innerPadding ->
         HomeBody(
             groupList = homeUiState.groupList,
-            favFlashcardCount = homeUiState.favFlashcardCount,
+            favFlashcardCount = 0, //TODO
             onGroupClick = { id -> navigateToGroup(id) },
             onDelete = { group ->
                 selectedGroup = group

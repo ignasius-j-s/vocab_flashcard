@@ -8,6 +8,4 @@ class OfflineCardsRepository(private val cardDao: CardDao) : CardsRepository {
     override suspend fun delete(card: Card) = cardDao.delete(card)
     override fun getAllCardsStream(): Flow<List<Card>> = cardDao.getAllCards()
     override fun getCardStream(id: Int): Flow<Card?> = cardDao.getCard(id)
-    override fun getFavoriteCardsStream(): Flow<List<Card>> = cardDao.getFavoriteCards()
-    override fun getFavoriteCardsCount(): Flow<Int> = cardDao.getFavoriteCardsCount()
 }

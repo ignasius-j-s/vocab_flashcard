@@ -8,4 +8,5 @@ interface GroupsRepository {
     suspend fun deleteGroup(group: Group)
     fun getAllGroupsStream(): Flow<List<Group>>
     fun getGroupStream(id: Int): Flow<Group?>
+    fun getGroupWithCardsStream(id: Int): Flow<GroupWithCardsList?>
 }

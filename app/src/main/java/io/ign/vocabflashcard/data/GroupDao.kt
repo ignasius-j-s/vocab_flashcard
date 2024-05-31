@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GroupDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(flashcard: Group)
 
     @Update
@@ -24,4 +24,7 @@ interface GroupDao {
 
     @Query("SELECT * from groups WHERE id = :id")
     fun getGroup(id: Int): Flow<Group>
+
+    @Query("SELECT * from groups WHERE id = :id")
+    fun getGroupWithCardsList(id: Int): Flow<GroupWithCardsList>
 }

@@ -3,7 +3,8 @@ package io.ign.vocabflashcard.ui.group
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.ign.vocabflashcard.data.Group
+import io.ign.vocabflashcard.data.Card
+import io.ign.vocabflashcard.data.GroupWithCardsList
 import io.ign.vocabflashcard.data.GroupsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,10 +15,11 @@ import kotlinx.coroutines.flow.stateIn
 data class GroupUiState(
     val id: Int = 0,
     val name: String = "",
+    val cardList: List<Card> = listOf()
 )
 
-fun Group.toGroupUiState(): GroupUiState {
-    return GroupUiState(this.id, this.name)
+fun GroupWithCardsList.toGroupUiState(): GroupUiState {
+    return GroupUiState(this.group.id, this.group.name, this.cardList)
 }
 
 class GroupViewModel(
@@ -25,9 +27,9 @@ class GroupViewModel(
     private val groupsRepository: GroupsRepository
 ) : ViewModel() {
     private val groupId: Int = checkNotNull(savedStateHandle[GroupScreenDestination.idArg])
-    
+
     val groupUiState: StateFlow<GroupUiState> =
-        groupsRepository.getGroupStream(groupId)
+        groupsRepository.getGroupWithCardsStream(groupId)
             .filterNotNull()
             .map { it.toGroupUiState() }
             .stateIn(

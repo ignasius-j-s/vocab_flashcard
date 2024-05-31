@@ -7,15 +7,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.ui.AppViewModelProvider
@@ -35,25 +38,25 @@ fun GroupScreen(
     modifier: Modifier = Modifier,
     viewModel: GroupViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val groupViewModel by viewModel.groupUiState.collectAsState()
+    val groupUiState by viewModel.groupUiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
             TopBar(
                 canNavigateBack = true,
-                title = groupViewModel.name,
+                title = groupUiState.name,
                 showSettingButton = false,
                 onNavBackClick = navigateBack
             )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                text = { Text(stringResource(R.string.flashcard_add)) },
+                text = { Text(stringResource(R.string.card_add)) },
                 icon = {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.flashcard_add)
+                        contentDescription = stringResource(R.string.card_add)
                     )
                 },
                 onClick = { /*TODO*/ },
@@ -65,6 +68,16 @@ fun GroupScreen(
             modifier = modifier
                 .padding(it)
                 .fillMaxSize()
-        )
+        ) {
+            if (groupUiState.cardList.isEmpty()) {
+                Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = stringResource(R.string.card_empty),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+        }
     }
 }

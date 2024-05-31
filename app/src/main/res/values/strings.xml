@@ -8,6 +8,7 @@
     <string name="group_nonexsistent_description">There is no Group.</string>
     <string name="ok_btn">OK</string>
     <string name="cancel_btn">Cancel</string>
-    <string name="flashcard_add">New Flashcard</string>
+    <string name="card_add">New Card</string>
     <string name="favorites">Favorites</string>
+    <string name="card_empty">Empty Card</string>
 </resources>

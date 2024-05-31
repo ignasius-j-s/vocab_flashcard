@@ -24,10 +24,4 @@ interface CardDao {
 
     @Query("SELECT * from cards WHERE id = :id")
     fun getCard(id: Int): Flow<Card>
-
-    @Query("SELECT * from cards WHERE favorite = :value ORDER BY word ASC")
-    fun getFavoriteCards(value: Boolean = true): Flow<List<Card>>
-
-    @Query("SELECT COUNT(favorite) from cards WHERE favorite = :value")
-    fun getFavoriteCardsCount(value: Boolean = true): Flow<Int>
 }
