@@ -47,14 +47,6 @@ class HomeViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = HomeUiState()
         )
-//        groupsRepository.getAllGroupsStream(
-//            SortOrder.valueOf(userPrefs.value.sortOrder),
-//            userPrefs.value.isDescending
-//        ).map { HomeUiState(it) }.stateIn(
-//            scope = viewModelScope,
-//            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-//            initialValue = HomeUiState()
-//        )
 
     suspend fun saveGroup(group: Group) {
         if (group.name.isNotBlank()) {
