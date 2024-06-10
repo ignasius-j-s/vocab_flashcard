@@ -57,7 +57,7 @@ fun TopBar(
                 }
             }
         },
-        modifier = Modifier.shadow(dimensionResource(R.dimen.shadow_small))
+        modifier = Modifier.shadow(dimensionResource(R.dimen.top_app_shadow))
     )
 
     if (showSettingDialog) {
