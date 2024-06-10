@@ -48,13 +48,13 @@ fun SettingDialog(
                             .weight(1f)
                     )
                     RadioButton(
-                        selected = settingUiState.sortOrder == "Name",
-                        onClick = { coroutineScope.launch { viewModel.saveSortOrder("Name") } }
+                        selected = settingUiState.sortOrder == SortOrder.NAME,
+                        onClick = { coroutineScope.launch { viewModel.saveSortOrder(SortOrder.NAME) } }
                     )
                     Text("Name")
                     RadioButton(
-                        selected = settingUiState.sortOrder == "Time",
-                        onClick = { coroutineScope.launch { viewModel.saveSortOrder("Time") } }
+                        selected = settingUiState.sortOrder == SortOrder.TIME,
+                        onClick = { coroutineScope.launch { viewModel.saveSortOrder(SortOrder.TIME) } }
                     )
                     Text("Time")
                 }

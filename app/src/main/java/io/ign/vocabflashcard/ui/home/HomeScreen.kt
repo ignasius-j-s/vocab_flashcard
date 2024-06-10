@@ -153,7 +153,9 @@ fun HomeBody(
             favFlashcardCount = favFlashcardCount,
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_extra_small))
         )
+
         Divider(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)))
+
         if (groupList.isEmpty()) {
             Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(

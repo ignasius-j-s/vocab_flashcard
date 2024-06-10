@@ -21,7 +21,7 @@ abstract class VocabFlashcardDatabase : RoomDatabase() {
                     VocabFlashcardDatabase::class.java, "vocabflashcard_database"
                 )
                     .fallbackToDestructiveMigration()
-                    .createFromAsset("app.db")
+//                    .createFromAsset("app.db")
                     .build()
                     .also { Instance = it }
             }

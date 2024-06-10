@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ign.vocabflashcard.data.Group
 import io.ign.vocabflashcard.data.GroupsRepository
+import io.ign.vocabflashcard.data.UserPreferencesRepository
+import io.ign.vocabflashcard.data.UserPrefs
+import io.ign.vocabflashcard.ui.setting.SortOrder
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -13,18 +16,29 @@ data class HomeUiState(val groupList: List<Group> = listOf())
 
 class HomeViewModel(
     private val groupsRepository: GroupsRepository,
+    userPrefsRepository: UserPreferencesRepository
 ) : ViewModel() {
+    private val userPrefs: StateFlow<UserPrefs> =
+        userPrefsRepository.getUserPrefs().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = UserPrefs("NAME", false)
+        )
+
     val homeUiState: StateFlow<HomeUiState> =
-        groupsRepository.getAllGroupsStream().map { HomeUiState(it) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = HomeUiState()
-            )
+        groupsRepository.getAllGroupsStream(
+            SortOrder.valueOf(userPrefs.value.sortOrder),
+            userPrefs.value.isDescending
+        ).map { HomeUiState(it) }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = HomeUiState()
+        )
 
     suspend fun saveGroup(group: Group) {
         if (group.name.isNotBlank()) {
-            groupsRepository.insertGroup(group)
+            val newGroup = group.copy(createdAt = System.currentTimeMillis())
+            groupsRepository.insertGroup(newGroup)
         }
     }
 

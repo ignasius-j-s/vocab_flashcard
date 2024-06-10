@@ -10,6 +10,7 @@ data class Group(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,
+    val createdAt: Long = 0,
 )
 
 data class GroupWithCardsList(

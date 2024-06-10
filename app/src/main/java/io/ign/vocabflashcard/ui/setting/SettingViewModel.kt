@@ -5,27 +5,27 @@ import androidx.lifecycle.viewModelScope
 import io.ign.vocabflashcard.data.UserPreferencesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-data class SettingUiState(val sortOrder: String, val descending: Boolean)
+data class SettingUiState(val sortOrder: SortOrder, val descending: Boolean)
+enum class SortOrder {
+    NAME,
+    TIME
+}
 
 class SettingViewModel(private val userPrefsRepository: UserPreferencesRepository) : ViewModel() {
-    private val availableSortOrder = listOf("Name", "Time")
-
     val settingUiState: StateFlow<SettingUiState> =
-        userPrefsRepository.sortOrder.combine(userPrefsRepository.descending) { sort, desc ->
-            SettingUiState(sort, desc)
+        userPrefsRepository.getUserPrefs().map {
+            SettingUiState(SortOrder.valueOf(it.sortOrder), it.isDescending)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = SettingUiState("", false)
+            initialValue = SettingUiState(SortOrder.NAME, false)
         )
 
-    suspend fun saveSortOrder(sortOrder: String) {
-        if (availableSortOrder.contains(sortOrder)) {
-            userPrefsRepository.saveSortOrder(sortOrder)
-        }
+    suspend fun saveSortOrder(sortOrder: SortOrder) {
+        userPrefsRepository.saveSortOrder(sortOrder)
     }
 
     suspend fun saveDescending(descending: Boolean) {

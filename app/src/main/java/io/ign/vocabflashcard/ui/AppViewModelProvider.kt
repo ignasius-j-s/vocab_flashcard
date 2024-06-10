@@ -13,7 +13,10 @@ import io.ign.vocabflashcard.ui.setting.SettingViewModel
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            HomeViewModel(vocabFlashcardApplication().container.groupsRepository)
+            HomeViewModel(
+                vocabFlashcardApplication().container.groupsRepository,
+                vocabFlashcardApplication().container.userPrefsRepository
+            )
         }
 
         initializer {

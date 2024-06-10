@@ -5,8 +5,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import io.ign.vocabflashcard.ui.setting.SortOrder
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+
+data class UserPrefs(val sortOrder: String, val isDescending: Boolean)
 
 class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     private companion object {
@@ -14,11 +18,15 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
         val DESCENDING = booleanPreferencesKey("descending")
     }
 
-    val sortOrder: Flow<String> = dataStore.data.map { it[SORT_ORDER] ?: "Name" }
-    val descending: Flow<Boolean> = dataStore.data.map { it[DESCENDING] ?: false }
+    fun getUserPrefs(): Flow<UserPrefs> {
+        return dataStore.data.map { it[SORT_ORDER] ?: "NAME" }
+            .combine(dataStore.data.map { it[DESCENDING] ?: false }) { sortOrder, isDescending ->
+                UserPrefs(sortOrder, isDescending)
+            }
+    }
 
-    suspend fun saveSortOrder(value: String) {
-        dataStore.edit { it[SORT_ORDER] = value }
+    suspend fun saveSortOrder(value: SortOrder) {
+        dataStore.edit { it[SORT_ORDER] = value.name }
     }
 
     suspend fun saveDescending(value: Boolean) {

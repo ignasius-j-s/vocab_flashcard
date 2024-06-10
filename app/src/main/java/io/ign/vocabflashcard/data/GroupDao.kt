@@ -19,9 +19,20 @@ interface GroupDao {
     @Delete
     suspend fun delete(flashcard: Group)
 
-    @Query("SELECT * from groups ORDER BY name ASC")
-    fun getAllGroups(): Flow<List<Group>>
+    @Query(
+        "SELECT * from groups ORDER BY " +
+                "CASE WHEN :isDesc = 1 THEN name END DESC," +
+                "CASE WHEN :isDesc = 0 THEN name END ASC"
+    )
+    fun getAllGroupsByName(isDesc: Boolean): Flow<List<Group>>
 
+    @Query(
+        "SELECT * from groups ORDER BY " +
+                "CASE WHEN :isDesc = 1 THEN createdAt END DESC," +
+                "CASE WHEN :isDesc = 0 THEN createdAt END ASC"
+    )
+    fun getAllGroupsByTime(isDesc: Boolean): Flow<List<Group>>
+    
     @Query("SELECT * from groups WHERE id = :id")
     fun getGroup(id: Int): Flow<Group>
 
