@@ -7,8 +7,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import io.ign.vocabflashcard.ui.group.GroupScreen
-import io.ign.vocabflashcard.ui.group.GroupScreenDestination
+import io.ign.vocabflashcard.ui.deck.DeckScreen
+import io.ign.vocabflashcard.ui.deck.DeckScreenDestination
 import io.ign.vocabflashcard.ui.home.HomeScreen
 import io.ign.vocabflashcard.ui.home.HomeScreenDestination
 
@@ -24,21 +24,21 @@ fun VocabFlashcardNavHost(
     ) {
         composable(HomeScreenDestination.route) {
             HomeScreen(
-                navigateToGroup = { id ->
-                    navController.navigate(GroupScreenDestination.route + "/$id")
+                navigateToDeck = { id ->
+                    navController.navigate(DeckScreenDestination.route + "/$id")
                 }
             )
         }
         composable(
-            GroupScreenDestination.routeWithArg,
+            DeckScreenDestination.routeWithArg,
             arguments = listOf(
                 navArgument(
-                    GroupScreenDestination.ARG_ID,
+                    DeckScreenDestination.ARG_ID,
                     builder = { type = NavType.IntType }
                 )
             )
         ) {
-            GroupScreen(
+            DeckScreen(
                 navigateBack = { navController.navigateUp() }
             )
         }

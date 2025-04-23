@@ -20,7 +20,7 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
 
     fun getUserPrefs(): Flow<UserPrefs> {
         return dataStore.data.map { it[SORT_ORDER] ?: "NAME" }
-            .combine(dataStore.data.map { it[DESCENDING] ?: false }) { sortOrder, isDescending ->
+            .combine(dataStore.data.map { it[DESCENDING] == true }) { sortOrder, isDescending ->
                 UserPrefs(sortOrder, isDescending)
             }
     }

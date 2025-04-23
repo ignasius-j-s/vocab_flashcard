@@ -5,9 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Group::class, Card::class], version = 1, exportSchema = false)
+@Database(entities = [Deck::class, Card::class], version = 1, exportSchema = false)
 abstract class VocabFlashcardDatabase : RoomDatabase() {
-    abstract fun groupDao(): GroupDao
+    abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
 
     companion object {

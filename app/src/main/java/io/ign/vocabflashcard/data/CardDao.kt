@@ -19,7 +19,7 @@ interface CardDao {
     @Delete
     suspend fun delete(card: Card)
 
-    @Query("SELECT * from cards ORDER BY word ASC")
+    @Query("SELECT * from cards ORDER BY term ASC")
     fun getAllCards(): Flow<List<Card>>
 
     @Query("SELECT * from cards WHERE id = :id")

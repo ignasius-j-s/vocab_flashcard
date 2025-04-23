@@ -1,4 +1,4 @@
-package io.ign.vocabflashcard.ui.group
+package io.ign.vocabflashcard.ui.deck
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,27 +24,27 @@ import io.ign.vocabflashcard.ui.AppViewModelProvider
 import io.ign.vocabflashcard.ui.TopBar
 import io.ign.vocabflashcard.ui.navigation.NavigationDestination
 
-object GroupScreenDestination : NavigationDestination {
-    override val route = "group"
+object DeckScreenDestination : NavigationDestination {
+    override val route = "deck"
 
     const val ARG_ID = "id"
     val routeWithArg = "$route/{$ARG_ID}"
 }
 
 @Composable
-fun GroupScreen(
+fun DeckScreen(
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: GroupViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: DeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val groupUiState by viewModel.groupUiState.collectAsState()
+    val deckUiState by viewModel.deckUiState.collectAsState()
 //    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
             TopBar(
                 canNavigateBack = true,
-                title = groupUiState.name,
+                title = deckUiState.name,
                 showSettingButton = false,
                 onNavBackClick = navigateBack
             )
@@ -68,7 +68,7 @@ fun GroupScreen(
                 .padding(it)
                 .fillMaxSize()
         ) {
-            if (groupUiState.cardList.isEmpty()) {
+            if (deckUiState.cards.isEmpty()) {
                 Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = stringResource(R.string.card_empty),

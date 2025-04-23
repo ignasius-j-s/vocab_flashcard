@@ -1,5 +1,6 @@
 package io.ign.vocabflashcard.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -7,10 +8,9 @@ import androidx.room.PrimaryKey
 data class Card(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val word: String,
+    val term: String,
     val note: String,
     val definition: String,
-    val favorite: Boolean,
-
-    val groupId: Int,
+    @ColumnInfo(name = "deck_id")
+    val deckId: Int,
 )

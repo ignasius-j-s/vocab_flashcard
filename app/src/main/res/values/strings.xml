@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">Vocab Flashcard</string>
     <string name="search_placeholder">Search</string>
-    <string name="group_add_title">New group</string>
-    <string name="group_edit_title">Rename group</string>
-    <string name="group_delete_title">Delete group</string>
-    <string name="group_delete_confirmation">Do you really want to delete this group?</string>
-    <string name="group_empty_description">There is no group.</string>
+    <string name="deck_add">New deck</string>
+    <string name="deck_edit">Rename deck</string>
+    <string name="deck_delete">Delete deck</string>
+    <string name="deck_delete_confirmation">Do you really want to delete this deck?</string>
+    <string name="deck_empty">There is no deck.</string>
     <string name="ok_btn">OK</string>
     <string name="cancel_btn">Cancel</string>
     <string name="card_add">New card</string>

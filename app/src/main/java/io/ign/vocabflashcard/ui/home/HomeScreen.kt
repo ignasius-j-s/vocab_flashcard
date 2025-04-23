@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 //import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
-import io.ign.vocabflashcard.data.Group
+import io.ign.vocabflashcard.data.Deck
 import io.ign.vocabflashcard.ui.AppViewModelProvider
 import io.ign.vocabflashcard.ui.CustomTextField
 import io.ign.vocabflashcard.ui.TopBar
@@ -63,7 +63,7 @@ object HomeScreenDestination : NavigationDestination {
 
 @Composable
 fun HomeScreen(
-    navigateToGroup: (Int) -> Unit,
+    navigateToDeck: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -71,7 +71,7 @@ fun HomeScreen(
     var showNewDialog by remember { mutableStateOf(false) }
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var selectedGroup by remember { mutableStateOf(Group(name = "")) }
+    var selectedDeck by remember { mutableStateOf(Deck(name = "")) }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -80,11 +80,11 @@ fun HomeScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                text = { Text(stringResource(R.string.group_add_title)) },
+                text = { Text(stringResource(R.string.deck_add)) },
                 icon = {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.group_add_title)
+                        contentDescription = stringResource(R.string.deck_add)
                     )
                 },
                 onClick = { showNewDialog = true },
@@ -93,15 +93,15 @@ fun HomeScreen(
         }
     ) { innerPadding ->
         HomeBody(
-            groupList = homeUiState.groupList,
+            deckList = homeUiState.deckList,
             favFlashcardCount = 0, //TODO
-            onGroupClick = { id -> navigateToGroup(id) },
-            onDelete = { group ->
-                selectedGroup = group
+            onDeckClick = navigateToDeck,
+            onDelete = { deck ->
+                selectedDeck = deck
                 showDeleteDialog = true
             },
-            onEdit = { group ->
-                selectedGroup = group
+            onEdit = { deck ->
+                selectedDeck = deck
                 showEditDialog = true
             },
             modifier = modifier
@@ -110,29 +110,29 @@ fun HomeScreen(
     }
 
     if (showNewDialog) {
-        NewGroupDialog(
+        NewDeckDialog(
             onDismiss = { showNewDialog = false },
-            onOkClick = { group ->
-                coroutineScope.launch { viewModel.saveGroup(group) }
+            onOkClick = { deck ->
+                coroutineScope.launch { viewModel.saveDeck(deck) }
             }
         )
     }
 
     if (showEditDialog) {
-        EditGroupDialog(
-            value = selectedGroup.name,
+        EditDeckDialog(
+            value = selectedDeck.name,
             onDismiss = { showEditDialog = false },
-            onOkClick = { groupName ->
-                coroutineScope.launch { viewModel.editGroup(selectedGroup, groupName) }
+            onOkClick = { deckName ->
+                coroutineScope.launch { viewModel.editDeck(selectedDeck, deckName) }
             }
         )
     }
 
     if (showDeleteDialog) {
-        DeleteGroupDialog(
+        DeleteDeckDialog(
             onDismiss = { showDeleteDialog = false },
             onOkClick = {
-                coroutineScope.launch { viewModel.deleteGroup(selectedGroup) }
+                coroutineScope.launch { viewModel.deleteDeck(selectedDeck) }
             }
         )
     }
@@ -141,11 +141,11 @@ fun HomeScreen(
 @Composable
 fun HomeBody(
     modifier: Modifier = Modifier,
-    groupList: List<Group>,
+    deckList: List<Deck>,
     favFlashcardCount: Int = 0,
-    onGroupClick: (Int) -> Unit,
-    onDelete: (Group) -> Unit,
-    onEdit: (Group) -> Unit,
+    onDeckClick: (Int) -> Unit,
+    onDelete: (Deck) -> Unit,
+    onEdit: (Deck) -> Unit,
 ) {
     Column(modifier = modifier) {
         FavoriteEntry(
@@ -156,18 +156,18 @@ fun HomeBody(
 
         HorizontalDivider(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)))
 
-        if (groupList.isEmpty()) {
+        if (deckList.isEmpty()) {
             Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = stringResource(R.string.group_empty_description),
+                    text = stringResource(R.string.deck_empty),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
             }
         } else {
-            GroupList(
-                groupList = groupList,
-                onGroupClick = { onGroupClick(it.id) },
+            DeckList(
+                deckList = deckList,
+                onDeckClick = { onDeckClick(it.id) },
                 onDelete = onDelete,
                 onEdit = onEdit,
             )
@@ -176,11 +176,11 @@ fun HomeBody(
 }
 
 @Composable
-fun GroupList(
-    groupList: List<Group>,
-    onGroupClick: (Group) -> Unit,
-    onDelete: (Group) -> Unit,
-    onEdit: (Group) -> Unit,
+fun DeckList(
+    deckList: List<Deck>,
+    onDeckClick: (Deck) -> Unit,
+    onDelete: (Deck) -> Unit,
+    onEdit: (Deck) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -188,10 +188,10 @@ fun GroupList(
             contentPadding = PaddingValues(dimensionResource(R.dimen.padding_extra_small)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_extra_small))
         ) {
-            items(items = groupList, key = { it.id }) { group ->
-                GroupEntry(
-                    group = group,
-                    onGroupClick = onGroupClick,
+            items(items = deckList, key = { it.id }) { deck ->
+                DeckEntry(
+                    deck = deck,
+                    onDeckClick = onDeckClick,
                     onDelete = onDelete,
                     onEdit = onEdit
                 )
@@ -241,17 +241,17 @@ fun FavoriteEntry(
 }
 
 @Composable
-fun GroupEntry(
-    group: Group,
-    onGroupClick: (Group) -> Unit,
-    onDelete: (Group) -> Unit,
-    onEdit: (Group) -> Unit,
+fun DeckEntry(
+    deck: Deck,
+    onDeckClick: (Deck) -> Unit,
+    onDelete: (Deck) -> Unit,
+    onEdit: (Deck) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onGroupClick(group) }
+            .clickable { onDeckClick(deck) }
     ) {
         var moreMenu by remember { mutableStateOf(false) }
 
@@ -262,11 +262,11 @@ fun GroupEntry(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.List,
-                contentDescription = "list_${group.name}",
+                contentDescription = "list_${deck.name}",
                 Modifier.padding(dimensionResource(R.dimen.padding_medium)),
             )
             Text(
-                text = group.name,
+                text = deck.name,
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -285,33 +285,33 @@ fun GroupEntry(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.Outlined.Edit,
-                                    contentDescription = stringResource(R.string.group_edit_title)
+                                    contentDescription = stringResource(R.string.deck_edit)
                                 )
                                 Spacer(Modifier.padding(horizontal = dimensionResource(R.dimen.padding_extra_small)))
                                 Text(
-                                    stringResource(R.string.group_edit_title),
+                                    stringResource(R.string.deck_edit),
                                     textAlign = TextAlign.Center
                                 )
                             }
                         },
-                        onClick = { onEdit(group); moreMenu = false }
+                        onClick = { onEdit(deck); moreMenu = false }
                     )
                     DropdownMenuItem(
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
-                                    contentDescription = stringResource(R.string.group_delete_title),
+                                    contentDescription = stringResource(R.string.deck_delete),
                                     tint = Color(0xFFEF5350)
                                 )
                                 Spacer(Modifier.padding(horizontal = dimensionResource(R.dimen.padding_extra_small)))
                                 Text(
-                                    stringResource(R.string.group_delete_title),
+                                    stringResource(R.string.deck_delete),
                                     textAlign = TextAlign.Center
                                 )
                             }
                         },
-                        onClick = { onDelete(group); moreMenu = false }
+                        onClick = { onDelete(deck); moreMenu = false }
                     )
                 }
             }
@@ -320,36 +320,36 @@ fun GroupEntry(
 }
 
 @Composable
-fun NewGroupDialog(
+fun NewDeckDialog(
     onDismiss: () -> Unit,
-    onOkClick: (Group) -> Unit
+    onOkClick: (Deck) -> Unit
 ) {
-    GroupDialog(
+    DeckDialog(
         onDismiss = onDismiss,
-        onOkClick = { groupName ->
-            val group = Group(name = groupName)
-            onOkClick(group)
+        onOkClick = { deckName ->
+            val deck = Deck(name = deckName)
+            onOkClick(deck)
         },
-        title = R.string.group_add_title,
+        title = R.string.deck_add,
     )
 }
 
 @Composable
-fun EditGroupDialog(
+fun EditDeckDialog(
     value: String,
     onDismiss: () -> Unit,
     onOkClick: (String) -> Unit
 ) {
-    GroupDialog(
+    DeckDialog(
         value,
         onDismiss = onDismiss,
         onOkClick = onOkClick,
-        title = R.string.group_edit_title,
+        title = R.string.deck_edit,
     )
 }
 
 @Composable
-fun DeleteGroupDialog(
+fun DeleteDeckDialog(
     onDismiss: () -> Unit,
     onOkClick: () -> Unit
 ) {
@@ -371,15 +371,15 @@ fun DeleteGroupDialog(
             }
         },
         title = {
-            Text(stringResource(R.string.group_delete_title))
+            Text(stringResource(R.string.deck_delete))
         },
         text = {
-            Text(stringResource(R.string.group_delete_confirmation))
+            Text(stringResource(R.string.deck_delete_confirmation))
         },
         icon = {
             Icon(
                 imageVector = Icons.Outlined.Warning,
-                contentDescription = stringResource(R.string.group_delete_title),
+                contentDescription = stringResource(R.string.deck_delete),
                 tint = Color(0xFFEF5350)
             )
         }
@@ -387,21 +387,21 @@ fun DeleteGroupDialog(
 }
 
 @Composable
-fun GroupDialog(
+fun DeckDialog(
     value: String = "",
     onDismiss: () -> Unit,
     onOkClick: (String) -> Unit,
     @StringRes title: Int,
 ) {
     var enableOkButton by remember { mutableStateOf(false) }
-    var groupName by remember { mutableStateOf(value) }
+    var deckName by remember { mutableStateOf(value) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
                 onClick = {
-                    onOkClick(groupName)
+                    onOkClick(deckName)
                     onDismiss()
                 },
                 enabled = enableOkButton
@@ -420,10 +420,10 @@ fun GroupDialog(
         text = {
             Column {
                 CustomTextField(
-                    value = groupName,
+                    value = deckName,
                     onValueChange = {
                         enableOkButton = it.isNotBlank()
-                        groupName = it
+                        deckName = it
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -431,43 +431,3 @@ fun GroupDialog(
         }
     )
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewEmptyGroup() {
-//    HomeBody(groupList = listOf(), onGroupClick = {}, onDelete = {}, onEdit = {})
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewGroupList() {
-//    val groupList = listOf(
-//        Group(0, "English"),
-//        Group(1, "French"),
-//        Group(2, "Japanese"),
-//        Group(3, "Indonesia"),
-//    )
-//    GroupList(
-//        groupList = groupList,
-//        onGroupClick = {},
-//        onDelete = {},
-//        onEdit = {},
-//        modifier = Modifier.padding(
-//            dimensionResource(
-//                id = R.dimen.padding_small
-//            )
-//        )
-//    )
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewNewGroupDialog() {
-//    NewGroupDialog({}, {})
-//}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewDeleteGroupDialog() {
-//    DeleteGroupDialog({}, {})
-//}

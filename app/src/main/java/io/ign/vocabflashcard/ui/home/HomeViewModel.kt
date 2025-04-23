@@ -2,8 +2,8 @@ package io.ign.vocabflashcard.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.ign.vocabflashcard.data.Group
-import io.ign.vocabflashcard.data.GroupsRepository
+import io.ign.vocabflashcard.data.Deck
+import io.ign.vocabflashcard.data.DecksRepository
 import io.ign.vocabflashcard.data.UserPreferencesRepository
 import io.ign.vocabflashcard.data.UserPrefs
 import io.ign.vocabflashcard.ui.setting.SortOrder
@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 
-data class HomeUiState(val groupList: List<Group> = listOf())
+data class HomeUiState(val deckList: List<Deck> = listOf())
 
 class HomeViewModel(
-    private val groupsRepository: GroupsRepository,
+    private val decksRepository: DecksRepository,
     userPrefsRepository: UserPreferencesRepository
 ) : ViewModel() {
     private val userPrefs: StateFlow<UserPrefs> =
@@ -29,8 +29,8 @@ class HomeViewModel(
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val groupList = userPrefs.flatMapLatest {
-        groupsRepository.getAllGroupsStream(SortOrder.valueOf(it.sortOrder), it.isDescending)
+    private val deckList = userPrefs.flatMapLatest {
+        decksRepository.getAllDecksStream(SortOrder.valueOf(it.sortOrder), it.isDescending)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -40,30 +40,30 @@ class HomeViewModel(
     private val _homeUiState = MutableStateFlow(HomeUiState())
 
     val homeUiState: StateFlow<HomeUiState> =
-        combine(_homeUiState, groupList, userPrefs) { homeUiState, groupList, _ ->
-            homeUiState.copy(groupList = groupList)
+        combine(_homeUiState, deckList, userPrefs) { homeUiState, deckList, _ ->
+            homeUiState.copy(deckList = deckList)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = HomeUiState()
         )
 
-    suspend fun saveGroup(group: Group) {
-        if (group.name.isNotBlank()) {
-            val newGroup = group.copy(createdAt = System.currentTimeMillis())
-            groupsRepository.insertGroup(newGroup)
+    suspend fun saveDeck(deck: Deck) {
+        if (deck.name.isNotBlank()) {
+            val newDeck = deck.copy(createdAt = System.currentTimeMillis())
+            decksRepository.insertDeck(newDeck)
         }
     }
 
-    suspend fun editGroup(group: Group, newName: String) {
-        if (group.name.isNotBlank() && group.name != newName) {
-            groupsRepository.updateGroup(group.copy(name = newName))
+    suspend fun editDeck(deck: Deck, newName: String) {
+        if (deck.name.isNotBlank() && deck.name != newName) {
+            decksRepository.updateDeck(deck.copy(name = newName))
         }
     }
 
-    suspend fun deleteGroup(group: Group) {
-        groupsRepository.deleteGroup(group)
-        // TODO: also delete all children of this group
+    suspend fun deleteDeck(deck: Deck) {
+        decksRepository.deleteDeck(deck)
+        // TODO: also delete all children of this deck
     }
 
     companion object {

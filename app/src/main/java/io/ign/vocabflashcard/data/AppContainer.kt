@@ -4,14 +4,14 @@ import android.content.Context
 import io.ign.vocabflashcard.dataStore
 
 interface AppContainer {
-    val groupsRepository: GroupsRepository
+    val decksRepository: DecksRepository
     val cardsRepository: CardsRepository
     val userPrefsRepository: UserPreferencesRepository
 }
 
 class AppDataContainer(private val context: Context) : AppContainer {
-    override val groupsRepository: GroupsRepository by lazy {
-        OfflineGroupsRepository(VocabFlashcardDatabase.getDatabase(context).groupDao())
+    override val decksRepository: DecksRepository by lazy {
+        OfflineDecksRepository(VocabFlashcardDatabase.getDatabase(context).deckDao())
     }
 
     override val cardsRepository: CardsRepository by lazy {
