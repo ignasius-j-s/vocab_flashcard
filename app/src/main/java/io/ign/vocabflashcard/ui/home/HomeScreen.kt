@@ -14,17 +14,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,7 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+//import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.Group
@@ -140,26 +140,26 @@ fun HomeScreen(
 
 @Composable
 fun HomeBody(
+    modifier: Modifier = Modifier,
     groupList: List<Group>,
     favFlashcardCount: Int = 0,
     onGroupClick: (Int) -> Unit,
     onDelete: (Group) -> Unit,
     onEdit: (Group) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         FavoriteEntry(
-            onClick = { },
+            onClick = {},
             favFlashcardCount = favFlashcardCount,
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_extra_small))
         )
 
-        Divider(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)))
+        HorizontalDivider(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small)))
 
         if (groupList.isEmpty()) {
             Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = stringResource(R.string.group_nonexsistent_description),
+                    text = stringResource(R.string.group_empty_description),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -261,7 +261,7 @@ fun GroupEntry(
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
-                imageVector = Icons.Outlined.List,
+                imageVector = Icons.AutoMirrored.Outlined.List,
                 contentDescription = "list_${group.name}",
                 Modifier.padding(dimensionResource(R.dimen.padding_medium)),
             )
@@ -432,42 +432,42 @@ fun GroupDialog(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewEmptyGroup() {
-    HomeBody(groupList = listOf(), onGroupClick = {}, onDelete = {}, onEdit = {})
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewGroupList() {
-    val groupList = listOf(
-        Group(0, "English"),
-        Group(1, "French"),
-        Group(2, "Japanese"),
-        Group(3, "Indonesia"),
-    )
-    GroupList(
-        groupList = groupList,
-        onGroupClick = {},
-        onDelete = {},
-        onEdit = {},
-        modifier = Modifier.padding(
-            dimensionResource(
-                id = R.dimen.padding_small
-            )
-        )
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewNewGroupDialog() {
-    NewGroupDialog({}, {})
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDeleteGroupDialog() {
-    DeleteGroupDialog({}, {})
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewEmptyGroup() {
+//    HomeBody(groupList = listOf(), onGroupClick = {}, onDelete = {}, onEdit = {})
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewGroupList() {
+//    val groupList = listOf(
+//        Group(0, "English"),
+//        Group(1, "French"),
+//        Group(2, "Japanese"),
+//        Group(3, "Indonesia"),
+//    )
+//    GroupList(
+//        groupList = groupList,
+//        onGroupClick = {},
+//        onDelete = {},
+//        onEdit = {},
+//        modifier = Modifier.padding(
+//            dimensionResource(
+//                id = R.dimen.padding_small
+//            )
+//        )
+//    )
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewNewGroupDialog() {
+//    NewGroupDialog({}, {})
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewDeleteGroupDialog() {
+//    DeleteGroupDialog({}, {})
+//}

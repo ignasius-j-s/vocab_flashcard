@@ -26,7 +26,7 @@ class GroupViewModel(
     savedStateHandle: SavedStateHandle,
     private val groupsRepository: GroupsRepository
 ) : ViewModel() {
-    private val groupId: Int = checkNotNull(savedStateHandle[GroupScreenDestination.idArg])
+    private val groupId: Int = checkNotNull(savedStateHandle[GroupScreenDestination.ARG_ID])
 
     val groupUiState: StateFlow<GroupUiState> =
         groupsRepository.getGroupWithCardsStream(groupId)

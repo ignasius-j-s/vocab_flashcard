@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.ui.AppViewModelProvider
@@ -38,7 +37,7 @@ fun SettingDialog(
         title = { Text("Settings") },
         text = {
             Column {
-                Divider()
+                HorizontalDivider()
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         "Sort",
@@ -58,7 +57,7 @@ fun SettingDialog(
                     )
                     Text("Time")
                 }
-                Divider()
+                HorizontalDivider()
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         "Descending",
@@ -74,7 +73,7 @@ fun SettingDialog(
                         }
                     )
                 }
-                Divider()
+                HorizontalDivider()
             }
         },
         confirmButton = {
@@ -84,12 +83,4 @@ fun SettingDialog(
             )
         }
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSettingDialog() {
-    MaterialTheme {
-        SettingDialog({})
-    }
 }

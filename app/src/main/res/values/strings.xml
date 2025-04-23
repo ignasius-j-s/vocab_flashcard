@@ -1,14 +1,14 @@
 <resources>
     <string name="app_name">Vocab Flashcard</string>
     <string name="search_placeholder">Search</string>
-    <string name="group_add_title">New Group</string>
-    <string name="group_edit_title">Rename Group</string>
-    <string name="group_delete_title">Delete Group</string>
+    <string name="group_add_title">New group</string>
+    <string name="group_edit_title">Rename group</string>
+    <string name="group_delete_title">Delete group</string>
     <string name="group_delete_confirmation">Do you really want to delete this group?</string>
-    <string name="group_nonexsistent_description">There is no Group.</string>
+    <string name="group_empty_description">There is no group.</string>
     <string name="ok_btn">OK</string>
     <string name="cancel_btn">Cancel</string>
-    <string name="card_add">New Card</string>
+    <string name="card_add">New card</string>
     <string name="favorites">Favorites</string>
     <string name="card_empty">Empty Card</string>
 </resources>

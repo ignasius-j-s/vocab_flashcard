@@ -33,7 +33,7 @@ fun VocabFlashcardNavHost(
             GroupScreenDestination.routeWithArg,
             arguments = listOf(
                 navArgument(
-                    GroupScreenDestination.idArg,
+                    GroupScreenDestination.ARG_ID,
                     builder = { type = NavType.IntType }
                 )
             )

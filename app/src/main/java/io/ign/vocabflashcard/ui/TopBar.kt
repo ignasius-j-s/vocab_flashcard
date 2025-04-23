@@ -3,7 +3,7 @@
 package io.ign.vocabflashcard.ui
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -18,12 +18,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.tooling.preview.Preview
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.ui.setting.SettingDialog
-import io.ign.vocabflashcard.ui.theme.VocabFlashcardTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     title: String = "Title",
@@ -40,7 +37,7 @@ fun TopBar(
             if (canNavigateBack) {
                 IconButton(onClick = onNavBackClick) {
                     Icon(
-                        Icons.Filled.ArrowBack,
+                        Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "navBack",
                     )
                 }
@@ -62,13 +59,5 @@ fun TopBar(
 
     if (showSettingDialog) {
         SettingDialog(onDismissRequest = { showSettingDialog = false })
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewTopBar() {
-    VocabFlashcardTheme {
-        TopBar(canNavigateBack = true)
     }
 }

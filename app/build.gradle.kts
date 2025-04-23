@@ -1,17 +1,18 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    id("com.google.devtools.ksp") version "1.9.0-1.0.13"
+    alias(libs.plugins.compose.compiler)
+    id("com.google.devtools.ksp") version "2.1.10-1.0.31"
 }
 
 android {
     namespace = "io.ign.vocabflashcard"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "io.ign.vocabflashcard"
+        applicationId = "io.github.ignasius_j_s.vocabflashcard"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -68,15 +69,13 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // Navigation
-    val navVersion = "2.7.7"
-    implementation("androidx.navigation:navigation-compose:$navVersion")
+    implementation(libs.androidx.navigation.compose)
 
     // Room
-    val roomVersion = "2.6.1"
-    implementation("androidx.room:room-runtime:$roomVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     // Datastore
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.androidx.datastore.preferences)
 }

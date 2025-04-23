@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -28,8 +27,8 @@ import io.ign.vocabflashcard.ui.navigation.NavigationDestination
 object GroupScreenDestination : NavigationDestination {
     override val route = "group"
 
-    val idArg = "id"
-    val routeWithArg = "$route/{$idArg}"
+    const val ARG_ID = "id"
+    val routeWithArg = "$route/{$ARG_ID}"
 }
 
 @Composable
@@ -39,7 +38,7 @@ fun GroupScreen(
     viewModel: GroupViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val groupUiState by viewModel.groupUiState.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
+//    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
