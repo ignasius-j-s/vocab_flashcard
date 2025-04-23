@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(card: Card)
 
     @Update
@@ -19,9 +19,9 @@ interface CardDao {
     @Delete
     suspend fun delete(card: Card)
 
+    @Query("SELECT * from cards WHERE id = :id")
+    fun get(id: Int): Flow<Card>
+
     @Query("SELECT * from cards ORDER BY term ASC")
     fun getAllCards(): Flow<List<Card>>
-
-    @Query("SELECT * from cards WHERE id = :id")
-    fun getCard(id: Int): Flow<Card>
 }
