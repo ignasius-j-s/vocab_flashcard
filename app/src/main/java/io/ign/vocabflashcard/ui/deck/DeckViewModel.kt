@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 data class DeckUiState(
-    val id: Int = 0,
-    val name: String = "",
-    val cards: List<Card> = listOf()
+    val deckId: Int = 0,
+    val deckName: String = "",
+    val cardList: List<Card> = listOf()
 )
 
 fun DeckWithCards.toDeckUiState(): DeckUiState {
@@ -26,19 +26,18 @@ class DeckViewModel(
     savedStateHandle: SavedStateHandle,
     decksRepository: DecksRepository
 ) : ViewModel() {
-    private val deckId: Int = checkNotNull(savedStateHandle[DeckScreenDestination.ARG_ID])
-
-    val deckUiState: StateFlow<DeckUiState> =
-        decksRepository.getDeckWithCardsStream(deckId)
-            .filterNotNull()
-            .map { it.toDeckUiState() }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = DeckUiState()
-            )
-
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
+
+    private val deckId: Int = checkNotNull(savedStateHandle[DeckScreenDestination.ARG_ID])
+
+    val deckUiState: StateFlow<DeckUiState> = decksRepository.getDeckWithCardsStream(deckId)
+        .filterNotNull()
+        .map { it.toDeckUiState() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = DeckUiState()
+        )
 }

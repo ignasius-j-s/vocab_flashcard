@@ -1,19 +1,22 @@
 package io.ign.vocabflashcard.data
 
-import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 
-@Entity(tableName = "decks")
+@Entity(tableName = "decks", indices = [Index("order")])
 data class Deck(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,
-    @ColumnInfo(name = "created_at")
-    val createdAt: Long = 0,
-)
+    val order: Int = 0,
+) {
+    fun isValid(): Boolean {
+        return this.name.isNotBlank()
+    }
+}
 
 data class DeckWithCards(
     @Embedded val deck: Deck,

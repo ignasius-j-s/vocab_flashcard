@@ -1,5 +1,6 @@
 package io.ign.vocabflashcard.ui.home
 
+//import androidx.compose.ui.tooling.preview.Preview
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,8 +22,10 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,7 +39,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,20 +49,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-//import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.Deck
 import io.ign.vocabflashcard.ui.AppViewModelProvider
 import io.ign.vocabflashcard.ui.CustomTextField
-import io.ign.vocabflashcard.ui.TopBar
 import io.ign.vocabflashcard.ui.navigation.NavigationDestination
-import kotlinx.coroutines.launch
 
 object HomeScreenDestination : NavigationDestination {
     override val route = "home"
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navigateToDeck: (Int) -> Unit,
@@ -72,11 +72,10 @@ fun HomeScreen(
     var showEditDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedDeck by remember { mutableStateOf(Deck(name = "")) }
-    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
-            TopBar(canNavigateBack = false, title = stringResource(R.string.app_name))
+            CenterAlignedTopAppBar(title = { Text(stringResource(R.string.app_name)) })
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -112,9 +111,7 @@ fun HomeScreen(
     if (showNewDialog) {
         NewDeckDialog(
             onDismiss = { showNewDialog = false },
-            onOkClick = { deck ->
-                coroutineScope.launch { viewModel.saveDeck(deck) }
-            }
+            onOkClick = { deck -> viewModel.saveDeck(deck) }
         )
     }
 
@@ -122,18 +119,14 @@ fun HomeScreen(
         EditDeckDialog(
             value = selectedDeck.name,
             onDismiss = { showEditDialog = false },
-            onOkClick = { deckName ->
-                coroutineScope.launch { viewModel.editDeck(selectedDeck, deckName) }
-            }
+            onOkClick = { deck -> viewModel.editDeck(selectedDeck, deck) }
         )
     }
 
     if (showDeleteDialog) {
         DeleteDeckDialog(
             onDismiss = { showDeleteDialog = false },
-            onOkClick = {
-                coroutineScope.launch { viewModel.deleteDeck(selectedDeck) }
-            }
+            onOkClick = { viewModel.deleteDeck(selectedDeck) }
         )
     }
 }
@@ -338,12 +331,15 @@ fun NewDeckDialog(
 fun EditDeckDialog(
     value: String,
     onDismiss: () -> Unit,
-    onOkClick: (String) -> Unit
+    onOkClick: (Deck) -> Unit
 ) {
     DeckDialog(
         value,
         onDismiss = onDismiss,
-        onOkClick = onOkClick,
+        onOkClick = { deckName ->
+            val deck = Deck(name = deckName)
+            onOkClick(deck)
+        },
         title = R.string.deck_edit,
     )
 }

@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 
 @Database(entities = [Deck::class, Card::class], version = 1, exportSchema = false)
 abstract class VocabFlashcardDatabase : RoomDatabase() {
@@ -18,9 +20,15 @@ abstract class VocabFlashcardDatabase : RoomDatabase() {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(
                     context,
-                    VocabFlashcardDatabase::class.java, "vocabflashcard_database"
+                    VocabFlashcardDatabase::class.java, "vocabflashcard-db"
                 )
                     .fallbackToDestructiveMigration(false)
+                    .addCallback(object: Callback() {
+                        override fun onOpen(connection: SQLiteConnection) {
+                            super.onOpen(connection)
+                            connection.execSQL("PRAGMA foreign_keys=ON")
+                        }
+                    })
 //                    .createFromAsset("app.db")
                     .build()
                     .also { Instance = it }

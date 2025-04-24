@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
-data class UserPrefs(val sortOrder: String, val isDescending: Boolean)
+data class UserPrefs(val sortOrder: SortOrder, val descending: Boolean)
 
 class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     private companion object {
@@ -19,9 +19,9 @@ class UserPreferencesRepository(private val dataStore: DataStore<Preferences>) {
     }
 
     fun getUserPrefs(): Flow<UserPrefs> {
-        return dataStore.data.map { it[SORT_ORDER] ?: "NAME" }
-            .combine(dataStore.data.map { it[DESCENDING] == true }) { sortOrder, isDescending ->
-                UserPrefs(sortOrder, isDescending)
+        return dataStore.data.map { SortOrder.valueOf(it[SORT_ORDER] ?: "NAME") }
+            .combine(dataStore.data.map { it[DESCENDING] == true }) { sortOrder, descending ->
+                UserPrefs(sortOrder, descending)
             }
     }
 

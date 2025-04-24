@@ -17,7 +17,7 @@ enum class SortOrder {
 class SettingViewModel(private val userPrefsRepository: UserPreferencesRepository) : ViewModel() {
     val settingUiState: StateFlow<SettingUiState> =
         userPrefsRepository.getUserPrefs().map {
-            SettingUiState(SortOrder.valueOf(it.sortOrder), it.isDescending)
+            SettingUiState(it.sortOrder, it.descending)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
