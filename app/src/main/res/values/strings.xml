@@ -1,14 +1,15 @@
 <resources>
     <string name="app_name">Vocab Flashcard</string>
     <string name="search_placeholder">Search</string>
-    <string name="deck_add">New deck</string>
-    <string name="deck_edit">Rename deck</string>
+    <string name="deck_new">New deck</string>
+    <string name="deck_create">Create new deck</string>
+    <string name="deck_rename">Rename deck</string>
     <string name="deck_delete">Delete deck</string>
     <string name="deck_delete_confirmation">Do you really want to delete this deck?</string>
-    <string name="deck_empty">There is no deck.</string>
+    <string name="deck_empty">There is no deck yet.</string>
     <string name="ok_btn">OK</string>
     <string name="cancel_btn">Cancel</string>
-    <string name="card_add">New card</string>
-    <string name="favorites">Favorites</string>
+    <string name="card_new">New card</string>
     <string name="card_empty">Empty Card</string>
+    <string name="favorites">Favorites</string>
 </resources>

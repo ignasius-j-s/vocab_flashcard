@@ -12,13 +12,14 @@ data class Deck(
     val id: Int = 0,
     val name: String,
     val order: Int = 0,
+    val expanded: Boolean = false
 ) {
     fun isValid(): Boolean {
         return this.name.isNotBlank()
     }
 }
 
-data class DeckWithCards(
+data class DeckData(
     @Embedded val deck: Deck,
     @Relation(
         parentColumn = "id",

@@ -28,15 +28,15 @@ interface DeckDao {
 
     @Transaction
     @Query("SELECT * from decks WHERE id = :id")
-    fun getWithCards(id: Int): Flow<DeckWithCards>
+    fun getData(id: Int): Flow<DeckData>
 
     @Transaction
     @Query("SELECT * from decks")
-    fun getAllWithCards(): Flow<List<DeckWithCards>>
+    fun getAllData(): Flow<List<DeckData>>
 
     @Query("UPDATE decks SET `order` = :order WHERE id = :id")
     suspend fun updateOrder(id: Int, order: Int)
 
-    @Query("SELECT MAX(`order`) FROM decks")
-    fun getMaxOrder(): Int?
+    @Query("SELECT IFNULL(MAX(`order`), 0) FROM decks")
+    fun getMaxOrder(): Int
 }

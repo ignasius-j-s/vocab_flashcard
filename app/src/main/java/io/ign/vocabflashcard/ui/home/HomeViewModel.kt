@@ -3,6 +3,7 @@ package io.ign.vocabflashcard.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ign.vocabflashcard.data.Deck
+import io.ign.vocabflashcard.data.DeckData
 import io.ign.vocabflashcard.data.DecksRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -11,8 +12,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class HomeUiState(val deckList: List<Deck> = listOf())
-
+data class HomeUiState(val deckDataList: List<DeckData> = listOf())
 
 class HomeViewModel(
     private val decksRepository: DecksRepository,
@@ -21,7 +21,7 @@ class HomeViewModel(
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    val homeUiState: StateFlow<HomeUiState> = decksRepository.getAllDecksStream()
+    val homeUiState: StateFlow<HomeUiState> = decksRepository.getAllDeckDataStream()
         .filterNotNull()
         .map { HomeUiState(it) }
         .stateIn(
@@ -32,9 +32,11 @@ class HomeViewModel(
 
     fun saveDeck(newDeck: Deck) {
         if (newDeck.isValid()) {
+//            TODO: investigate why this caused crash
+//            val maxOrder = decksRepository.getDeckMaxOrder()
             viewModelScope.launch {
-                val maxOrder = decksRepository.getDeckMaxOrder() ?: 0
-                decksRepository.insertDeck(newDeck.copy(order = maxOrder + 1))
+//                decksRepository.insertDeck(newDeck.copy(order = maxOrder + 1))
+                decksRepository.insertDeck(newDeck)
             }
         }
     }

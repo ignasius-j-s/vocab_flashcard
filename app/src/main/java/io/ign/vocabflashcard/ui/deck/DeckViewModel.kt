@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ign.vocabflashcard.data.Card
-import io.ign.vocabflashcard.data.DeckWithCards
+import io.ign.vocabflashcard.data.DeckData
 import io.ign.vocabflashcard.data.DecksRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +18,7 @@ data class DeckUiState(
     val cardList: List<Card> = listOf()
 )
 
-fun DeckWithCards.toDeckUiState(): DeckUiState {
+fun DeckData.toDeckUiState(): DeckUiState {
     return DeckUiState(this.deck.id, this.deck.name, this.cards)
 }
 
@@ -32,7 +32,7 @@ class DeckViewModel(
 
     private val deckId: Int = checkNotNull(savedStateHandle[DeckScreenDestination.ARG_ID])
 
-    val deckUiState: StateFlow<DeckUiState> = decksRepository.getDeckWithCardsStream(deckId)
+    val deckUiState: StateFlow<DeckUiState> = decksRepository.getDeckDataStream(deckId)
         .filterNotNull()
         .map { it.toDeckUiState() }
         .stateIn(
