@@ -11,5 +11,7 @@ class OfflineDecksRepository(private val deckDao: DeckDao) : DecksRepository {
     override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAll()
 
     override suspend fun updateDeckOrder(id: Int, order: Int) = deckDao.updateOrder(id, order)
-    override fun getDeckMaxOrder(): Int = deckDao.getMaxOrder()
+    override suspend fun getMaxOrder(): Int? = deckDao.getMaxOrder()
+    override suspend fun swapDeckOrder(deck1: Deck, deck2: Deck) =
+        deckDao.swapOrder(deck1.id, deck1.order, deck2.id, deck2.order)
 }

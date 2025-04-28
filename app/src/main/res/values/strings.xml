@@ -12,4 +12,8 @@
     <string name="card_new">New card</string>
     <string name="card_empty">Empty Card</string>
     <string name="favorites">Favorites</string>
+    <string name="move_up">Move up</string>
+    <string name="move_down">Move down</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
 </resources>

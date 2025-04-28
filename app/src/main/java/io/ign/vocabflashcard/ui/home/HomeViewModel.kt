@@ -35,11 +35,10 @@ class HomeViewModel(
 
     fun insertDeck(deck: Deck) {
         if (deck.isValid()) {
-//            TODO: investigate why this caused crash
-//            val maxOrder = decksRepository.getDeckMaxOrder()
             viewModelScope.launch {
-//                decksRepository.insertDeck(newDeck.copy(order = maxOrder + 1))
-                decksRepository.insertDeck(deck)
+                val maxOrder = decksRepository.getMaxOrder() ?: 0
+                decksRepository.insertDeck(deck.copy(order = maxOrder + 1))
+//                decksRepository.insertDeck(deck)
             }
         }
     }
@@ -58,8 +57,15 @@ class HomeViewModel(
         }
     }
 
+    fun swapDeckOrder(deck1: Deck, deck2: Deck) {
+        viewModelScope.launch {
+            decksRepository.swapDeckOrder(deck1, deck2)
+        }
+    }
+
     fun getCards(deckId: Int, searchQuery: String? = null): Flow<List<Card>> {
         val searchQuery = searchQuery ?: ""
+
         return if (searchQuery.isBlank()) {
             cardsRepository.getAllCardsInDeckStream(deckId)
         } else {

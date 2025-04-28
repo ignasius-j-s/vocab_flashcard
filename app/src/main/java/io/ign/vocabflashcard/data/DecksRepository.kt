@@ -11,5 +11,6 @@ interface DecksRepository {
     fun getAllDecksStream(): Flow<List<Deck>>
 
     suspend fun updateDeckOrder(id: Int, order: Int)
-    fun getDeckMaxOrder(): Int
+    suspend fun getMaxOrder(): Int?
+    suspend fun swapDeckOrder(deck1: Deck, deck2: Deck): Unit
 }

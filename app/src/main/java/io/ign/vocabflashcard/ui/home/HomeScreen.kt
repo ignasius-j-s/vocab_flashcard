@@ -6,6 +6,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Search
@@ -31,6 +34,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -68,14 +72,14 @@ sealed class DialogKind {
     object Create : DialogKind()
     class Rename(val renamedDeck: Deck) : DialogKind()
     class Delete(val deletedDeck: Deck) : DialogKind()
-    class Menu(val selectedDeck: Deck) : DialogKind()
+    class Menu(val selectedDeck: Deck, val deckIndex: Int) : DialogKind()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navigateToDeck: (Deck) -> Unit,
-    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val homeUiState by viewModel.homeUiState.collectAsState()
     var showDialog by remember { mutableStateOf(DialogKind.None as DialogKind) }
@@ -94,6 +98,7 @@ fun HomeScreen(
                     )
                 },
                 onClick = { showDialog = DialogKind.Create },
+                shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
             )
         }
@@ -101,17 +106,39 @@ fun HomeScreen(
         HomeContent(
             deckList = homeUiState.deckList,
             onDeckClick = navigateToDeck,
-            onDeckLongClick = { deck -> showDialog = DialogKind.Menu(deck) },
-            onDeckDelete = { deck -> showDialog = DialogKind.Delete(deck) },
-            onDeckRename = { deck -> showDialog = DialogKind.Rename(deck) },
+            onDeckLongClick = { deck, index -> showDialog = DialogKind.Menu(deck, index) },
             viewModel = viewModel,
             modifier = Modifier.padding(innerPadding)
         )
     }
 
+    val onMoveUp = { deck: Deck, index: Int ->
+        if (index > 0) {
+            val previousDeck = homeUiState.deckList[index - 1]
+            viewModel.swapDeckOrder(deck, previousDeck)
+        }
+    }
+
+    val onMoveDown = { deck: Deck, index: Int ->
+        if (index < homeUiState.deckList.lastIndex) {
+            val nextDeck = homeUiState.deckList[index + 1]
+            viewModel.swapDeckOrder(deck, nextDeck)
+        }
+    }
+
     when (showDialog) {
         is DialogKind.None -> {}
-        else -> DeckDialog(viewModel, showDialog, onDismiss = { showDialog = DialogKind.None })
+        else -> {
+            DeckDialog(
+                viewModel,
+                showDialog,
+                onDismiss = { showDialog = DialogKind.None },
+                onMoveUp,
+                onMoveDown,
+                onRename = { deck -> showDialog = DialogKind.Rename(deck) },
+                onDelete = { deck -> showDialog = DialogKind.Delete(deck) },
+            )
+        }
     }
 }
 
@@ -120,9 +147,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     deckList: List<Deck>,
     onDeckClick: (Deck) -> Unit,
-    onDeckLongClick: (Deck) -> Unit,
-    onDeckDelete: (Deck) -> Unit,
-    onDeckRename: (Deck) -> Unit,
+    onDeckLongClick: (Deck, Int) -> Unit,
     viewModel: HomeViewModel,
 ) {
     if (deckList.isEmpty()) {
@@ -146,7 +171,6 @@ fun HomeContent(
                     onDeckLongClick,
                     viewModel
                 )
-//                DeckEntry(deck, onDeckClick, onDeckDelete, onDeckRename)
             }
         }
     }
@@ -158,7 +182,7 @@ fun DeckItem(
     index: Int,
     deck: Deck,
     onClick: (Deck) -> Unit,
-    onLongClick: (Deck) -> Unit,
+    onLongClick: (Deck, Int) -> Unit,
     viewModel: HomeViewModel,
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -171,7 +195,7 @@ fun DeckItem(
                 color = MaterialTheme.colorScheme.secondaryContainer,
                 shape = RoundedCornerShape(dimensionResource(R.dimen.round))
             )
-            .combinedClickable(onLongClick = { onLongClick(deck) }, onClick = {})
+            .combinedClickable(onLongClick = { onLongClick(deck, index) }, onClick = {})
             .padding(dimensionResource(R.dimen.padding_small))
     ) {
         Column(
@@ -261,6 +285,10 @@ fun DeckDialog(
     viewModel: HomeViewModel,
     dialogKind: DialogKind,
     onDismiss: () -> Unit,
+    onMoveUp: (Deck, Int) -> Unit,
+    onMoveDown: (Deck, Int) -> Unit,
+    onRename: (Deck) -> Unit,
+    onDelete: (Deck) -> Unit,
 ) {
     var deckName by remember { mutableStateOf("") }
     var enableOkButton by remember { mutableStateOf(false) }
@@ -306,8 +334,63 @@ fun DeckDialog(
         }
 
         is DialogKind.Menu -> {
-            // TODO
-            text = null
+            text = {
+                Column {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onMoveUp(dialogKind.selectedDeck, dialogKind.deckIndex)
+                                onDismiss()
+                            }
+                            .padding(dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(R.string.move_up), modifier = Modifier.weight(1f))
+                            Icon(Icons.Outlined.KeyboardArrowUp, null)
+                        }
+                    }
+                    HorizontalDivider()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onMoveDown(dialogKind.selectedDeck, dialogKind.deckIndex)
+                                onDismiss()
+                            }
+                            .padding(dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(R.string.move_down), modifier = Modifier.weight(1f))
+                            Icon(Icons.Outlined.KeyboardArrowDown, null)
+                        }
+                    }
+                    HorizontalDivider()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onRename(dialogKind.selectedDeck) }
+                            .padding(dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(R.string.rename), modifier = Modifier.weight(1f))
+                            Icon(Icons.Outlined.Edit, null)
+                        }
+                    }
+                    HorizontalDivider()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onDelete(dialogKind.selectedDeck) }
+                            .padding(dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(R.string.delete), modifier = Modifier.weight(1f))
+                            Icon(Icons.Outlined.Delete, null)
+                        }
+                    }
+                }
+            }
         }
 
         else -> {
@@ -317,11 +400,14 @@ fun DeckDialog(
 
     AlertDialog(
         shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
+
         onDismissRequest = onDismiss,
         confirmButton = {
             if (dialogKind !is DialogKind.Menu) {
                 TextButton(
                     onClick = { onOkClick(); onDismiss() },
+                    contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
                     enabled = enableOkButton
                 ) {
                     Text(stringResource(R.string.ok_btn))
@@ -330,13 +416,17 @@ fun DeckDialog(
         },
         dismissButton = {
             if (dialogKind !is DialogKind.Menu) {
-                TextButton(onClick = onDismiss) {
+                TextButton(
+                    onClick = onDismiss,
+                    contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.round))
+                ) {
                     Text(stringResource(R.string.cancel_btn))
                 }
             }
         },
         title = title,
         icon = icon,
-        text = text
+        text = text,
     )
 }
