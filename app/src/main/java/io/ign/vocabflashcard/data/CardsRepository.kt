@@ -8,4 +8,6 @@ interface CardsRepository {
     suspend fun deleteCard(card: Card)
     fun getCardStream(id: Int): Flow<Card?>
     fun getAllCardsStream(): Flow<List<Card>>
+    fun getAllCardsInDeckStream(id: Int): Flow<List<Card>>
+    fun getAllCardsInDeckStream(id: Int, query: String): Flow<List<Card>>
 }

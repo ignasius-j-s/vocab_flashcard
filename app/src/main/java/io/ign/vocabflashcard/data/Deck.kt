@@ -18,12 +18,3 @@ data class Deck(
         return this.name.isNotBlank()
     }
 }
-
-data class DeckData(
-    @Embedded val deck: Deck,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "deck_id"
-    )
-    val cards: List<Card>
-)

@@ -1,33 +1,40 @@
 package io.ign.vocabflashcard.ui.home
 
 //import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -44,10 +51,10 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.Deck
-import io.ign.vocabflashcard.data.DeckData
 import io.ign.vocabflashcard.ui.AppViewModelProvider
 import io.ign.vocabflashcard.ui.CustomTextField
 import io.ign.vocabflashcard.ui.navigation.NavigationDestination
@@ -61,6 +68,7 @@ sealed class DialogKind {
     object Create : DialogKind()
     class Rename(val renamedDeck: Deck) : DialogKind()
     class Delete(val deletedDeck: Deck) : DialogKind()
+    class Menu(val selectedDeck: Deck) : DialogKind()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,10 +99,12 @@ fun HomeScreen(
         }
     ) { innerPadding ->
         HomeContent(
-            deckDataList = homeUiState.deckDataList,
+            deckList = homeUiState.deckList,
             onDeckClick = navigateToDeck,
+            onDeckLongClick = { deck -> showDialog = DialogKind.Menu(deck) },
             onDeckDelete = { deck -> showDialog = DialogKind.Delete(deck) },
             onDeckRename = { deck -> showDialog = DialogKind.Rename(deck) },
+            viewModel = viewModel,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -108,12 +118,14 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     modifier: Modifier = Modifier,
-    deckDataList: List<DeckData>,
+    deckList: List<Deck>,
     onDeckClick: (Deck) -> Unit,
+    onDeckLongClick: (Deck) -> Unit,
     onDeckDelete: (Deck) -> Unit,
     onDeckRename: (Deck) -> Unit,
+    viewModel: HomeViewModel,
 ) {
-    if (deckDataList.isEmpty()) {
+    if (deckList.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
                 text = stringResource(R.string.deck_empty),
@@ -123,90 +135,121 @@ fun HomeContent(
         }
     } else {
         LazyColumn(
-            modifier,
-            contentPadding = PaddingValues(dimensionResource(R.dimen.padding_extra_small)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_extra_small))
+            modifier = modifier.padding(dimensionResource(R.dimen.padding_small)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
         ) {
-            itemsIndexed(deckDataList, key = { i, data -> data.deck.id }) { i, data ->
-                DeckEntry(data.deck, onDeckClick, onDeckDelete, onDeckRename)
+            itemsIndexed(deckList, key = { i, deck -> deck.id }) { index, deck ->
+                DeckItem(
+                    index,
+                    deck,
+                    onDeckClick,
+                    onDeckLongClick,
+                    viewModel
+                )
+//                DeckEntry(deck, onDeckClick, onDeckDelete, onDeckRename)
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DeckEntry(
+fun DeckItem(
+    index: Int,
     deck: Deck,
     onClick: (Deck) -> Unit,
-    onDelete: (Deck) -> Unit,
-    onRename: (Deck) -> Unit,
-    modifier: Modifier = Modifier
+    onLongClick: (Deck) -> Unit,
+    viewModel: HomeViewModel,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onClick(deck) }
-    ) {
-        var moreMenu by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+    val cardList = viewModel.getCards(deck.id, searchQuery).collectAsState(emptyList())
 
-        Row(
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = RoundedCornerShape(dimensionResource(R.dimen.round))
+            )
+            .combinedClickable(onLongClick = { onLongClick(deck) }, onClick = {})
+            .padding(dimensionResource(R.dimen.padding_small))
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_small))
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.List,
-                contentDescription = deck.name,
-                Modifier.padding(dimensionResource(R.dimen.padding_medium)),
-            )
-            Text(
-                text = deck.name,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            Box {
-                IconButton(onClick = { moreMenu = true }) {
-                    Icon(
-                        imageVector = Icons.Outlined.MoreVert,
-                        contentDescription = "more"
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_small))
+            ) {
+                Text(
+                    deck.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = { viewModel.updateDeck(deck.copy(expanded = !deck.expanded)) }) {
+                    if (deck.expanded) {
+                        Icon(
+                            imageVector = Icons.Outlined.KeyboardArrowDown,
+                            contentDescription = "hide"
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.KeyboardArrowUp,
+                            contentDescription = "show"
+                        )
+                    }
                 }
-                DropdownMenu(expanded = moreMenu, onDismissRequest = { moreMenu = false }) {
-                    DropdownMenuItem(
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Edit,
-                                    contentDescription = stringResource(R.string.deck_rename)
-                                )
-                                Spacer(Modifier.padding(horizontal = dimensionResource(R.dimen.padding_extra_small)))
-                                Text(
-                                    stringResource(R.string.deck_rename),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        },
-                        onClick = { onRename(deck); moreMenu = false }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription = stringResource(R.string.deck_delete),
-                                    tint = Color(0xFFEF5350)
-                                )
-                                Spacer(Modifier.padding(horizontal = dimensionResource(R.dimen.padding_extra_small)))
-                                Text(
-                                    stringResource(R.string.deck_delete),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        },
-                        onClick = { onDelete(deck); moreMenu = false }
-                    )
+            }
+            AnimatedVisibility(
+                visible = deck.expanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_small))
+                ) {
+                    val height = 50.dp
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_small))
+                    ) {
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            singleLine = true,
+                            textStyle = MaterialTheme.typography.labelMedium,
+                            placeholder = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Outlined.Search, null)
+                                    Text(
+                                        stringResource(R.string.search_card_placeholder),
+                                        style = MaterialTheme.typography.labelMedium,
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(height)
+                        )
+                        Button(
+                            onClick = {},
+                            shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
+                            contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
+                            modifier = Modifier.height(height)
+                        ) {
+                            Icon(Icons.Outlined.Add, null)
+                            Text(
+                                stringResource(R.string.card_new),
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -221,8 +264,8 @@ fun DeckDialog(
 ) {
     var deckName by remember { mutableStateOf("") }
     var enableOkButton by remember { mutableStateOf(false) }
-    var onOkClick: () -> Unit = {}
-    var title = ""
+    var onOkClick: () -> Unit? = {}
+    var title: @Composable (() -> Unit)? = null
     var icon: @Composable (() -> Unit)? = null
     var text: @Composable (() -> Unit)? = {
         CustomTextField(
@@ -237,17 +280,17 @@ fun DeckDialog(
 
     when (dialogKind) {
         is DialogKind.Create -> {
-            title = stringResource(R.string.deck_create)
-            onOkClick = { viewModel.saveDeck(Deck(name = deckName)) }
+            title = { Text(stringResource(R.string.deck_create)) }
+            onOkClick = { viewModel.insertDeck(Deck(name = deckName)) }
         }
 
         is DialogKind.Rename -> {
-            title = stringResource(R.string.deck_rename)
-            onOkClick = { viewModel.editDeck(dialogKind.renamedDeck, Deck(name = deckName)) }
+            title = { Text(stringResource(R.string.deck_rename)) }
+            onOkClick = { viewModel.updateDeck(dialogKind.renamedDeck.copy(name = deckName)) }
         }
 
         is DialogKind.Delete -> {
-            title = stringResource(R.string.deck_delete)
+            title = { Text(stringResource(R.string.deck_delete)) }
             onOkClick = { viewModel.deleteDeck(dialogKind.deletedDeck) }
             enableOkButton = true
             icon = {
@@ -262,25 +305,37 @@ fun DeckDialog(
             }
         }
 
-        else -> {}
+        is DialogKind.Menu -> {
+            // TODO
+            text = null
+        }
+
+        else -> {
+            onDismiss()
+        }
     }
 
     AlertDialog(
+        shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(
-                onClick = { onOkClick(); onDismiss() },
-                enabled = enableOkButton
-            ) {
-                Text(stringResource(R.string.ok_btn))
+            if (dialogKind !is DialogKind.Menu) {
+                TextButton(
+                    onClick = { onOkClick(); onDismiss() },
+                    enabled = enableOkButton
+                ) {
+                    Text(stringResource(R.string.ok_btn))
+                }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel_btn))
+            if (dialogKind !is DialogKind.Menu) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.cancel_btn))
+                }
             }
         },
-        title = { Text(title) },
+        title = title,
         icon = icon,
         text = text
     )

@@ -18,6 +18,7 @@ import androidx.room.PrimaryKey
 )
 data class Card(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo(collate = ColumnInfo.NOCASE)
     val term: String,
     val description: String,
     val note: String = "",

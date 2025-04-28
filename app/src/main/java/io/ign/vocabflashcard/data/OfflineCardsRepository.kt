@@ -7,5 +7,7 @@ class OfflineCardsRepository(private val cardDao: CardDao) : CardsRepository {
     override suspend fun updateCard(card: Card) = cardDao.update(card)
     override suspend fun deleteCard(card: Card) = cardDao.delete(card)
     override fun getCardStream(id: Int): Flow<Card?> = cardDao.get(id)
-    override fun getAllCardsStream(): Flow<List<Card>> = cardDao.getAllCards()
+    override fun getAllCardsStream(): Flow<List<Card>> = cardDao.getAll()
+    override fun getAllCardsInDeckStream(id: Int): Flow<List<Card>> = cardDao.getAllInDeck(id)
+    override fun getAllCardsInDeckStream(id: Int, query: String) = cardDao.getAllInDeck(id, query)
 }

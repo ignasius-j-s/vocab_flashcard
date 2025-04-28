@@ -19,6 +19,7 @@ object AppViewModelProvider {
         initializer {
             HomeViewModel(
                 vocabFlashcardApplication().container.decksRepository,
+                vocabFlashcardApplication().container.cardsRepository,
             )
         }
 

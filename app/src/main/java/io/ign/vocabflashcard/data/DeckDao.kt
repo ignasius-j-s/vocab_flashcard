@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -25,14 +24,6 @@ interface DeckDao {
 
     @Query("SELECT * from decks ORDER BY `order` ASC")
     fun getAll(): Flow<List<Deck>>
-
-    @Transaction
-    @Query("SELECT * from decks WHERE id = :id")
-    fun getData(id: Int): Flow<DeckData>
-
-    @Transaction
-    @Query("SELECT * from decks")
-    fun getAllData(): Flow<List<DeckData>>
 
     @Query("UPDATE decks SET `order` = :order WHERE id = :id")
     suspend fun updateOrder(id: Int, order: Int)

@@ -9,8 +9,6 @@ class OfflineDecksRepository(private val deckDao: DeckDao) : DecksRepository {
 
     override fun getDeckStream(id: Int): Flow<Deck?> = deckDao.get(id)
     override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAll()
-    override fun getDeckDataStream(id: Int): Flow<DeckData?> = deckDao.getData(id)
-    override fun getAllDeckDataStream(): Flow<List<DeckData>> = deckDao.getAllData()
 
     override suspend fun updateDeckOrder(id: Int, order: Int) = deckDao.updateOrder(id, order)
     override fun getDeckMaxOrder(): Int = deckDao.getMaxOrder()

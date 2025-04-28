@@ -23,5 +23,11 @@ interface CardDao {
     fun get(id: Int): Flow<Card>
 
     @Query("SELECT * from cards ORDER BY term ASC")
-    fun getAllCards(): Flow<List<Card>>
+    fun getAll(): Flow<List<Card>>
+
+    @Query("SELECT * from cards WHERE deck_id = :id ORDER BY term ASC")
+    fun getAllInDeck(id: Int): Flow<List<Card>>
+
+    @Query("SELECT * FROM cards WHERE deck_id = :id AND term LIKE :query ORDER BY `term` ASC")
+    fun getAllInDeck(id:Int, query: String): Flow<List<Card>>
 }
