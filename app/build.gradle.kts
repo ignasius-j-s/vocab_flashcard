@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.ignasius_j_s.vocabflashcard"
-        minSdk = 28
+        minSdk = 27
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"

@@ -26,7 +26,7 @@ fun VocabFlashcardNavHost(
         composable(HomeScreenDestination.route) {
             HomeScreen(
                 navigateToDeck = { deck: Deck ->
-                    navController.navigate(DeckScreenDestination.route + "/$deck.id")
+                    navController.navigate(DeckScreenDestination.route + "/${deck.id}")
                 }
             )
         }

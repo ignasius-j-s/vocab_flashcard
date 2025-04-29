@@ -10,7 +10,7 @@
     <string name="ok_btn">OK</string>
     <string name="cancel_btn">Cancel</string>
     <string name="card_new">New card</string>
-    <string name="card_empty">Empty Card</string>
+    <string name="card_empty">Empty card.</string>
     <string name="favorites">Favorites</string>
     <string name="move_up">Move up</string>
     <string name="move_down">Move down</string>

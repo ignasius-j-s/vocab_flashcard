@@ -8,19 +8,25 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
@@ -58,6 +64,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
+import io.ign.vocabflashcard.data.Card
 import io.ign.vocabflashcard.data.Deck
 import io.ign.vocabflashcard.ui.AppViewModelProvider
 import io.ign.vocabflashcard.ui.CustomTextField
@@ -83,6 +90,7 @@ fun HomeScreen(
 ) {
     val homeUiState by viewModel.homeUiState.collectAsState()
     var showDialog by remember { mutableStateOf(DialogKind.None as DialogKind) }
+    val cardViewState by viewModel.cardViewState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -186,7 +194,7 @@ fun DeckItem(
     viewModel: HomeViewModel,
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    val cardList = viewModel.getCards(deck.id, searchQuery).collectAsState(emptyList())
+    val cardList by viewModel.getCards(deck.id, searchQuery).collectAsState(emptyList())
 
     Box(
         Modifier
@@ -195,19 +203,23 @@ fun DeckItem(
                 color = MaterialTheme.colorScheme.secondaryContainer,
                 shape = RoundedCornerShape(dimensionResource(R.dimen.round))
             )
-            .combinedClickable(onLongClick = { onLongClick(deck, index) }, onClick = {})
+            .combinedClickable(
+                onClick = { onClick(deck) },
+                onLongClick = { onLongClick(deck, index) },
+            )
             .padding(dimensionResource(R.dimen.padding_small))
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_small))
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_small))
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
             ) {
+                Icon(imageVector = Icons.AutoMirrored.Outlined.List, null)
                 Text(
                     deck.name,
                     style = MaterialTheme.typography.titleMedium,
@@ -235,13 +247,13 @@ fun DeckItem(
                 exit = shrinkVertically()
             ) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_small))
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
                 ) {
                     val height = 50.dp
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.space_small))
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
                     ) {
                         OutlinedTextField(
                             value = searchQuery,
@@ -262,7 +274,7 @@ fun DeckItem(
                                 .height(height)
                         )
                         Button(
-                            onClick = {},
+                            onClick = { viewModel.newCard(deck.id) },
                             shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
                             contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
                             modifier = Modifier.height(height)
@@ -274,10 +286,53 @@ fun DeckItem(
                             )
                         }
                     }
+                    val modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+
+                    if (cardList.isEmpty()) {
+                        Box(modifier = modifier, contentAlignment = Alignment.Center) {
+                            Text(
+                                text = stringResource(R.string.card_empty),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+                    } else {
+                        val state = rememberLazyListState()
+                        val snapBehaviour = rememberSnapFlingBehavior(lazyListState = state)
+                        LazyRow(
+                            state = state,
+                            flingBehavior = snapBehaviour,
+                            modifier = modifier,
+                            verticalAlignment = Alignment.CenterVertically,
+                            contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
+                        ) {
+                            items(cardList, key = { it.id }) { card ->
+                                CardItem(card)
+                            }
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+fun CardItem(
+    card: Card,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(
+                color = MaterialTheme.colorScheme.tertiaryContainer,
+                shape = RoundedCornerShape(dimensionResource(R.dimen.round))
+            ),
+        contentAlignment = Alignment.Center
+    ) { Text(card.term) }
 }
 
 @Composable
@@ -400,7 +455,6 @@ fun DeckDialog(
 
     AlertDialog(
         shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
-
         onDismissRequest = onDismiss,
         confirmButton = {
             if (dialogKind !is DialogKind.Menu) {
