@@ -85,9 +85,7 @@ class HomeViewModel(
     }
 
     fun getCards(deckId: Int, searchQuery: String? = null): Flow<List<Card>> {
-        val searchQuery = searchQuery ?: ""
-
-        return if (searchQuery.isBlank()) {
+        return if (searchQuery.isNullOrBlank()) {
             cardsRepository.getAllCardsInDeckStream(deckId)
         } else {
             cardsRepository.getAllCardsInDeckStream(deckId, "%$searchQuery%")

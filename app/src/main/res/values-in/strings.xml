@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Vocab Flashcard</string>
+    <string name="search_card_placeholder">Cari kartu</string>
+    <string name="deck_new">Dek baru</string>
+    <string name="deck_rename">Ubah nama dek</string>
+    <string name="deck_delete">Hapus dek</string>
+    <string name="deck_delete_confirmation">Yakin ingin menghapus dek ini?</string>
+    <string name="deck_empty">Belum ada dek.</string>
+    <string name="card_new">Kartu baru</string>
+    <string name="card_empty">Tidak ada kartu.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Batal</string>
+    <string name="save">Simpan</string>
+    <string name="edit">Sunting</string>
+    <string name="move_up">Pindah keatas</string>
+    <string name="move_down">Pindah kebawah</string>
+    <string name="rename">Ubah nama</string>
+    <string name="delete">Hapus</string>
+    <string name="card_term">Istilah</string>
+    <string name="card_description">Deskripsi</string>
+    <string name="card_note">Catatan</string>
+</resources>

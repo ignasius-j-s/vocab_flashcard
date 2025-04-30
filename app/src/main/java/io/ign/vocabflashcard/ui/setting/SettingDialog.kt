@@ -78,7 +78,7 @@ fun SettingDialog(
         },
         confirmButton = {
             Text(
-                stringResource(R.string.ok_btn),
+                stringResource(R.string.ok),
                 modifier = Modifier.clickable { onDismissRequest() }
             )
         }

@@ -42,6 +42,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -62,7 +63,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.Card
@@ -155,9 +155,7 @@ fun HomeScreen(
             )
         }
 
-        else -> {
-            viewModel.hideCardView()
-        }
+        else -> viewModel.hideCardView()
     }
 }
 
@@ -178,8 +176,8 @@ fun HomeContent(
         }
     } else {
         LazyColumn(
-            modifier = modifier.padding(dimensionResource(R.dimen.padding_small)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+            modifier = modifier.padding(dimensionResource(R.dimen.padding_medium)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
         ) {
             itemsIndexed(deckList, key = { i, deck -> deck.id }) { index, deck ->
                 DeckItem(
@@ -215,7 +213,7 @@ fun DeckItem(
                 onClick = { onClick(deck) },
                 onLongClick = { viewModel.menuDeckDialog(deck, index) },
             )
-            .padding(dimensionResource(R.dimen.padding_small))
+            .padding(dimensionResource(R.dimen.padding_medium))
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -310,7 +308,7 @@ fun DeckItem(
                     }
                     val modifier = Modifier
                         .fillMaxWidth()
-                        .height(160.dp)
+                        .height(dimensionResource(R.dimen.card_height))
 
                     if (cardList.isEmpty()) {
                         Box(modifier = modifier, contentAlignment = Alignment.Center) {
@@ -392,7 +390,7 @@ fun DeckDialog(
 
     when (dialogKind) {
         is DialogKind.Create -> {
-            title = { Text(stringResource(R.string.deck_create)) }
+            title = { Text(stringResource(R.string.deck_new)) }
             onOkClick = { viewModel.insertDeck(Deck(name = deckName)) }
         }
 
@@ -493,7 +491,7 @@ fun DeckDialog(
                     shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
                     enabled = enableOkButton
                 ) {
-                    Text(stringResource(R.string.ok_btn))
+                    Text(stringResource(R.string.ok))
                 }
             }
         },
@@ -504,7 +502,7 @@ fun DeckDialog(
                     contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
                     shape = RoundedCornerShape(dimensionResource(R.dimen.round))
                 ) {
-                    Text(stringResource(R.string.cancel_btn))
+                    Text(stringResource(R.string.cancel))
                 }
             }
         },
@@ -539,18 +537,23 @@ fun CardModalBottomSheet(
                 .fillMaxWidth()
                 .padding(horizontal = padding)
         ) {
-            Button(onClick = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onDismiss()
+            OutlinedButton(
+                onClick = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            onDismiss()
+                        }
                     }
                 }
-            }) { Text("Cancel") }
-            Button(enabled = enableOkButton, onClick = {
-                val card =
-                    card.copy(term = cardTerm, description = cardDescription, note = cardNote)
-                onOkClick(card); onDismiss()
-            }) { Text("Save") }
+            ) { Text(stringResource(R.string.cancel)) }
+            Button(
+                enabled = enableOkButton,
+                onClick = {
+                    val card =
+                        card.copy(term = cardTerm, description = cardDescription, note = cardNote)
+                    onOkClick(card); onDismiss()
+                }
+            ) { Text(stringResource(R.string.save)) }
         }
         Column(
             modifier = Modifier.padding(padding),
@@ -560,19 +563,19 @@ fun CardModalBottomSheet(
                 cardTerm,
                 onValueChange = { cardTerm = it },
                 singleLine = true,
-                label = { Text("Term") },
+                label = { Text(stringResource(R.string.card_term)) },
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 cardDescription,
                 onValueChange = { cardDescription = it },
-                label = { Text("Description") },
+                label = { Text(stringResource(R.string.card_description)) },
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 cardNote,
                 onValueChange = { cardNote = it },
-                label = { Text("Note") },
+                label = { Text(stringResource(R.string.card_note)) },
                 modifier = Modifier.fillMaxWidth(),
             )
         }

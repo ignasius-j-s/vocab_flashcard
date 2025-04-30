@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -30,4 +31,12 @@ interface CardDao {
 
     @Query("SELECT * FROM cards WHERE deck_id = :id AND term LIKE :query ORDER BY `term` ASC")
     fun getAllInDeck(id:Int, query: String): Flow<List<Card>>
+
+    @Transaction
+    @Query("SELECT * from cards WHERE id = :id")
+    fun getData(id: Int): Flow<CardData>
+
+    @Transaction
+    @Query("SELECT * from cards ORDER BY term ASC")
+    fun getAllData(): Flow<List<Card>>
 }
