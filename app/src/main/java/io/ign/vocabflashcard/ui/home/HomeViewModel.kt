@@ -17,6 +17,14 @@ import kotlinx.coroutines.launch
 
 data class HomeUiState(val deckList: List<Deck> = listOf())
 
+sealed class DialogKind {
+    object None : DialogKind()
+    object Create : DialogKind()
+    class Rename(val renamedDeck: Deck) : DialogKind()
+    class Delete(val deletedDeck: Deck) : DialogKind()
+    class Menu(val selectedDeck: Deck, val deckIndex: Int) : DialogKind()
+}
+
 sealed class CardViewKind {
     object None : CardViewKind()
     class Show(val card: Card) : CardViewKind()
@@ -44,12 +52,14 @@ class HomeViewModel(
     private val _cardViewState = MutableStateFlow(CardViewKind.None as CardViewKind)
     val cardViewState: StateFlow<CardViewKind> = _cardViewState
 
+    private val _deckDialogState = MutableStateFlow(DialogKind.None as DialogKind)
+    val deckDialogState: StateFlow<DialogKind> = _deckDialogState
+
     fun insertDeck(deck: Deck) {
         if (deck.isValid()) {
             viewModelScope.launch {
                 val maxOrder = decksRepository.getMaxOrder() ?: 0
                 decksRepository.insertDeck(deck.copy(order = maxOrder + 1))
-//                decksRepository.insertDeck(deck)
             }
         }
     }
@@ -84,6 +94,26 @@ class HomeViewModel(
         }
     }
 
+    fun hideDeckDialog() {
+        _deckDialogState.value = DialogKind.None
+    }
+
+    fun createDeckDialog() {
+        _deckDialogState.value = DialogKind.Create
+    }
+
+    fun renameDeckDialog(deck: Deck) {
+        _deckDialogState.value = DialogKind.Rename(deck)
+    }
+
+    fun deleteDeckDialog(deck: Deck) {
+        _deckDialogState.value = DialogKind.Delete(deck)
+    }
+
+    fun menuDeckDialog(deck: Deck, index: Int) {
+        _deckDialogState.value = DialogKind.Menu(deck, index)
+    }
+
     fun showCard(card: Card) {
         _cardViewState.value = CardViewKind.Show(card)
     }
@@ -94,5 +124,15 @@ class HomeViewModel(
 
     fun newCard(deckId: Int) {
         _cardViewState.value = CardViewKind.Create(deckId)
+    }
+
+    fun hideCardView() {
+        _cardViewState.value = CardViewKind.None
+    }
+
+    fun insertCard(card: Card) {
+        viewModelScope.launch {
+            cardsRepository.insertCard(card)
+        }
     }
 }
