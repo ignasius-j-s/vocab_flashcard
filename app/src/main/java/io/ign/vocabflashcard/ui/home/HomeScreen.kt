@@ -62,6 +62,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.Card
@@ -354,7 +355,12 @@ fun CardItem(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
         ) {
-            Text(card.term, style = MaterialTheme.typography.labelLarge)
+            Text(
+                card.term,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
             Text(card.description, style = MaterialTheme.typography.labelMedium)
         }
     }
