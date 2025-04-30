@@ -547,7 +547,7 @@ fun CardModalBottomSheet(
             }) { Text("Save") }
         }
         Column(
-            modifier = Modifier.padding(bottom = padding),
+            modifier = Modifier.padding(padding),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
         ) {
             OutlinedTextField(
