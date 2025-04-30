@@ -526,27 +526,30 @@ fun CardModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
     ) {
+        val padding = dimensionResource(R.dimen.padding_extra_large)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = padding)
+        ) {
+            Button(onClick = {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        onDismiss()
+                    }
+                }
+            }) { Text("Cancel") }
+            Button(enabled = enableOkButton, onClick = {
+                val card =
+                    card.copy(term = cardTerm, description = cardDescription, note = cardNote)
+                onOkClick(card); onDismiss()
+            }) { Text("Save") }
+        }
         Column(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_extra_large)),
+            modifier = Modifier.padding(bottom = padding),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            onDismiss()
-                        }
-                    }
-                }) { Text("Cancel") }
-                Button(enabled = enableOkButton, onClick = {
-                    val card =
-                        card.copy(term = cardTerm, description = cardDescription, note = cardNote)
-                    onOkClick(card); onDismiss()
-                }) { Text("Save") }
-            }
             OutlinedTextField(
                 cardTerm,
                 onValueChange = { cardTerm = it },
