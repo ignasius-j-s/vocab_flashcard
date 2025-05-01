@@ -103,7 +103,7 @@ fun HomeScreen(
                     )
                 },
                 onClick = { viewModel.createDeckDialog() },
-                shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
+                shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius)),
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
             )
         }
@@ -180,20 +180,23 @@ fun HomeContent(
             )
         }
     } else {
-        Box(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))) {
-            LazyColumn(
-                modifier = modifier,
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-                contentPadding = PaddingValues(bottom = 120.dp)
-            ) {
-                itemsIndexed(deckList, key = { i, deck -> deck.id }) { index, deck ->
-                    DeckItem(
-                        index,
-                        deck,
-                        onDeckClick,
-                        viewModel
-                    )
-                }
+        LazyColumn(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+            contentPadding = PaddingValues(
+                top = dimensionResource(R.dimen.padding_medium),
+                bottom = 120.dp, // make the last deck is not blocked by fab
+                start = dimensionResource(R.dimen.padding_medium),
+                end = dimensionResource(R.dimen.padding_medium)
+            )
+        ) {
+            itemsIndexed(deckList, key = { i, deck -> deck.id }) { index, deck ->
+                DeckItem(
+                    index,
+                    deck,
+                    onDeckClick,
+                    viewModel
+                )
             }
         }
     }
@@ -216,7 +219,7 @@ fun DeckItem(
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.round))
+                shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius))
             )
             .combinedClickable(
                 onClick = { onClick(deck) },
@@ -305,7 +308,7 @@ fun DeckItem(
                         )
                         Button(
                             onClick = { viewModel.newCard(deck.id) },
-                            shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
+                            shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius)),
                             contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
                             modifier = Modifier.height(height)
                         ) {
@@ -357,7 +360,7 @@ fun CardItem(
             .clickable { viewModel.showCard(card) }
             .background(
                 color = MaterialTheme.colorScheme.tertiaryContainer,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.round))
+                shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius))
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -499,14 +502,14 @@ fun DeckDialog(
     }
 
     AlertDialog(
-        shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
+        shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius)),
         onDismissRequest = onDismiss,
         confirmButton = {
             if (dialogKind !is DialogKind.Menu) {
                 TextButton(
                     onClick = { onOkClick(); onDismiss() },
                     contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.round)),
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius)),
                     enabled = enableOkButton
                 ) {
                     Text(stringResource(R.string.ok))
@@ -518,7 +521,7 @@ fun DeckDialog(
                 TextButton(
                     onClick = onDismiss,
                     contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
-                    shape = RoundedCornerShape(dimensionResource(R.dimen.round))
+                    shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius))
                 ) {
                     Text(stringResource(R.string.cancel))
                 }
