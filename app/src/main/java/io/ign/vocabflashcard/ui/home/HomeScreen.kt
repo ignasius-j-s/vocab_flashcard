@@ -63,13 +63,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.Card
+import io.ign.vocabflashcard.data.CardData
 import io.ign.vocabflashcard.data.Deck
 import io.ign.vocabflashcard.ui.AppViewModelProvider
 import io.ign.vocabflashcard.ui.CustomTextField
 import io.ign.vocabflashcard.ui.navigation.NavigationDestination
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 object HomeScreenDestination : NavigationDestination {
@@ -82,7 +85,7 @@ fun HomeScreen(
     navigateToDeck: (Deck) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
-    val homeUiState by viewModel.homeUiState.collectAsState()
+    val deckListState by viewModel.deckListState.collectAsState()
     val deckDialogState by viewModel.deckDialogState.collectAsState()
     val cardViewState by viewModel.cardViewState.collectAsState()
 
@@ -106,7 +109,7 @@ fun HomeScreen(
         }
     ) { innerPadding ->
         HomeContent(
-            deckList = homeUiState.deckList,
+            deckList = deckListState,
             onDeckClick = navigateToDeck,
             viewModel = viewModel,
             modifier = Modifier.padding(innerPadding)
@@ -115,14 +118,14 @@ fun HomeScreen(
 
     val onMoveUp = { deck: Deck, index: Int ->
         if (index > 0) {
-            val previousDeck = homeUiState.deckList[index - 1]
+            val previousDeck = deckListState[index - 1]
             viewModel.swapDeckOrder(deck, previousDeck)
         }
     }
 
     val onMoveDown = { deck: Deck, index: Int ->
-        if (index < homeUiState.deckList.lastIndex) {
-            val nextDeck = homeUiState.deckList[index + 1]
+        if (index < deckListState.lastIndex) {
+            val nextDeck = deckListState[index + 1]
             viewModel.swapDeckOrder(deck, nextDeck)
         }
     }
@@ -155,6 +158,8 @@ fun HomeScreen(
             )
         }
 
+        is CardViewKind.Show -> CardDataDialog((cardViewState as CardViewKind.Show).card, viewModel)
+
         else -> viewModel.hideCardView()
     }
 }
@@ -171,21 +176,24 @@ fun HomeContent(
             Text(
                 text = stringResource(R.string.deck_empty),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleMedium
             )
         }
     } else {
-        LazyColumn(
-            modifier = modifier.padding(dimensionResource(R.dimen.padding_medium)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-        ) {
-            itemsIndexed(deckList, key = { i, deck -> deck.id }) { index, deck ->
-                DeckItem(
-                    index,
-                    deck,
-                    onDeckClick,
-                    viewModel
-                )
+        Box(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))) {
+            LazyColumn(
+                modifier = modifier,
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+                contentPadding = PaddingValues(bottom = 120.dp)
+            ) {
+                itemsIndexed(deckList, key = { i, deck -> deck.id }) { index, deck ->
+                    DeckItem(
+                        index,
+                        deck,
+                        onDeckClick,
+                        viewModel
+                    )
+                }
             }
         }
     }
@@ -200,7 +208,8 @@ fun DeckItem(
     viewModel: HomeViewModel,
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    val cardList by viewModel.getCards(deck.id, searchQuery).collectAsState(emptyList())
+    val cardList by viewModel.fetchCardsStream(deck.id, searchQuery)
+        .collectAsState(initial = emptyList())
 
     Box(
         Modifier
@@ -223,26 +232,27 @@ fun DeckItem(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
             ) {
                 Box(
+                    contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(25.dp)
                         .background(
                             color = MaterialTheme.colorScheme.secondary,
                             shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
+                        )
                 ) {
                     Text(
                         "${cardList.size}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSecondary
+                        color = MaterialTheme.colorScheme.onSecondary,
                     )
                 }
                 Text(
                     deck.name,
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -315,7 +325,8 @@ fun DeckItem(
                             Text(
                                 text = stringResource(R.string.card_empty),
                                 textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.labelLarge
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
                         }
                     } else {
@@ -325,7 +336,7 @@ fun DeckItem(
                             pageSpacing = dimensionResource(R.dimen.padding_small)
                         ) { currentPage ->
                             Box(modifier = modifier) {
-                                CardItem(cardList[currentPage])
+                                CardItem(cardList[currentPage], viewModel)
                             }
                         }
                     }
@@ -338,10 +349,12 @@ fun DeckItem(
 @Composable
 fun CardItem(
     card: Card,
+    viewModel: HomeViewModel,
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .clickable { viewModel.showCard(card) }
             .background(
                 color = MaterialTheme.colorScheme.tertiaryContainer,
                 shape = RoundedCornerShape(dimensionResource(R.dimen.round))
@@ -356,10 +369,15 @@ fun CardItem(
             Text(
                 card.term,
                 style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Text(card.description, style = MaterialTheme.typography.labelMedium)
+            Text(
+                card.description,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+            )
         }
     }
 }
@@ -578,6 +596,22 @@ fun CardModalBottomSheet(
                 label = { Text(stringResource(R.string.card_note)) },
                 modifier = Modifier.fillMaxWidth(),
             )
+        }
+    }
+}
+
+@Composable
+fun CardDataDialog(card: Card, viewModel: HomeViewModel) {
+    val onDismiss = { viewModel.hideCardView() }
+    val cardDataState by viewModel.fetchCardDataStream(card.id).filterNotNull()
+        .collectAsState(initial = CardData(card))
+
+    Dialog(onDismissRequest = onDismiss) {
+        /* TODO */
+        Column {
+            Text(cardDataState.card.term)
+            Text(cardDataState.card.description)
+            Text(cardDataState.card.note)
         }
     }
 }

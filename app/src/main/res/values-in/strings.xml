@@ -5,7 +5,7 @@
     <string name="deck_new">Dek baru</string>
     <string name="deck_rename">Ubah nama dek</string>
     <string name="deck_delete">Hapus dek</string>
-    <string name="deck_delete_confirmation">Yakin ingin menghapus dek ini?</string>
+    <string name="deck_delete_confirmation">Dek ini akan dihapus secara permanen</string>
     <string name="deck_empty">Belum ada dek.</string>
     <string name="card_new">Kartu baru</string>
     <string name="card_empty">Tidak ada kartu.</string>

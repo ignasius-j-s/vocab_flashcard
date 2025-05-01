@@ -23,8 +23,4 @@ data class Card(
     val description: String,
     val note: String = "",
     @ColumnInfo(name = "deck_id") val deckId: Int,
-) {
-    fun isValid(): Boolean {
-        return this.term.isNotBlank() && this.description.isNotBlank()
-    }
-}
+)

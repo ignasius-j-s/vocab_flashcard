@@ -3,6 +3,7 @@ package io.ign.vocabflashcard.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ign.vocabflashcard.data.Card
+import io.ign.vocabflashcard.data.CardData
 import io.ign.vocabflashcard.data.CardsRepository
 import io.ign.vocabflashcard.data.Deck
 import io.ign.vocabflashcard.data.DecksRepository
@@ -11,11 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
-data class HomeUiState(val deckList: List<Deck> = listOf())
 
 sealed class DialogKind {
     object None : DialogKind()
@@ -40,13 +38,12 @@ class HomeViewModel(
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    val homeUiState: StateFlow<HomeUiState> = decksRepository.getAllDecksStream()
+    val deckListState: StateFlow<List<Deck>> = decksRepository.getAllDecksStream()
         .filterNotNull()
-        .map { HomeUiState(it) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = HomeUiState(emptyList())
+            initialValue = emptyList()
         )
 
     private val _cardViewState = MutableStateFlow(CardViewKind.None as CardViewKind)
@@ -56,19 +53,15 @@ class HomeViewModel(
     val deckDialogState: StateFlow<DialogKind> = _deckDialogState
 
     fun insertDeck(deck: Deck) {
-        if (deck.isValid()) {
-            viewModelScope.launch {
-                val maxOrder = decksRepository.getMaxOrder() ?: 0
-                decksRepository.insertDeck(deck.copy(order = maxOrder + 1))
-            }
+        viewModelScope.launch {
+            val maxOrder = decksRepository.getMaxOrder() ?: 0
+            decksRepository.insertDeck(deck.copy(order = maxOrder + 1))
         }
     }
 
     fun updateDeck(deck: Deck) {
-        if (deck.isValid()) {
-            viewModelScope.launch {
-                decksRepository.updateDeck(deck)
-            }
+        viewModelScope.launch {
+            decksRepository.updateDeck(deck)
         }
     }
 
@@ -84,13 +77,15 @@ class HomeViewModel(
         }
     }
 
-    fun getCards(deckId: Int, searchQuery: String? = null): Flow<List<Card>> {
+    fun fetchCardsStream(deckId: Int, searchQuery: String? = null): Flow<List<Card>> {
         return if (searchQuery.isNullOrBlank()) {
             cardsRepository.getAllCardsInDeckStream(deckId)
         } else {
             cardsRepository.getAllCardsInDeckStream(deckId, "%$searchQuery%")
         }
     }
+
+    fun fetchCardDataStream(id: Int): Flow<CardData?> = cardsRepository.getCardDataStream(id)
 
     fun hideDeckDialog() {
         _deckDialogState.value = DialogKind.None

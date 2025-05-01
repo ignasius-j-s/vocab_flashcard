@@ -10,4 +10,13 @@ interface CardsRepository {
     fun getAllCardsStream(): Flow<List<Card>>
     fun getAllCardsInDeckStream(id: Int): Flow<List<Card>>
     fun getAllCardsInDeckStream(id: Int, query: String): Flow<List<Card>>
+
+    fun getCardDataStream(id: Int): Flow<CardData?>
+    fun getAllCardDataStream(): Flow<List<CardData>>
+
+    suspend fun insertTranslation(translations: List<Translation>)
+    suspend fun deleteTranslation(translations: List<Translation>)
+
+    suspend fun insertExample(examples: List<Example>)
+    suspend fun deleteExample(examples: List<Example>)
 }

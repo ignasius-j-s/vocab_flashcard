@@ -7,7 +7,11 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
-@Database(entities = [Deck::class, Card::class], version = 1, exportSchema = false)
+@Database(
+    entities = [Deck::class, Card::class, Translation::class, Example::class],
+    version = 1,
+    exportSchema = false
+)
 abstract class VocabFlashcardDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
@@ -23,7 +27,7 @@ abstract class VocabFlashcardDatabase : RoomDatabase() {
                     VocabFlashcardDatabase::class.java, "vocabflashcard-db"
                 )
                     .fallbackToDestructiveMigration(false)
-                    .addCallback(object: Callback() {
+                    .addCallback(object : Callback() {
                         override fun onOpen(connection: SQLiteConnection) {
                             super.onOpen(connection)
                             connection.execSQL("PRAGMA foreign_keys=ON")

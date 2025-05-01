@@ -30,7 +30,7 @@ interface CardDao {
     fun getAllInDeck(id: Int): Flow<List<Card>>
 
     @Query("SELECT * FROM cards WHERE deck_id = :id AND term LIKE :query ORDER BY `term` ASC")
-    fun getAllInDeck(id:Int, query: String): Flow<List<Card>>
+    fun getAllInDeck(id: Int, query: String): Flow<List<Card>>
 
     @Transaction
     @Query("SELECT * from cards WHERE id = :id")
@@ -38,5 +38,17 @@ interface CardDao {
 
     @Transaction
     @Query("SELECT * from cards ORDER BY term ASC")
-    fun getAllData(): Flow<List<Card>>
+    fun getAllData(): Flow<List<CardData>>
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertTranslation(translation: List<Translation>)
+
+    @Delete
+    suspend fun deleteTranslation(translations: List<Translation>)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertExample(examples: List<Example>)
+
+    @Delete
+    suspend fun deleteExample(examples: List<Example>)
 }

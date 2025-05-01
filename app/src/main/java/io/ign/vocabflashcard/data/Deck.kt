@@ -1,10 +1,8 @@
 package io.ign.vocabflashcard.data
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 
 @Entity(tableName = "decks", indices = [Index("order")])
 data class Deck(
@@ -12,9 +10,5 @@ data class Deck(
     val id: Int = 0,
     val name: String,
     val order: Int = 0,
-    val expanded: Boolean = false
-) {
-    fun isValid(): Boolean {
-        return this.name.isNotBlank()
-    }
-}
+    val expanded: Boolean = false,
+)
