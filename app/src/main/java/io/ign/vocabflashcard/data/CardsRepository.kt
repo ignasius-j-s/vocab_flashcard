@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface CardsRepository {
     suspend fun insertCard(card: Card)
+    suspend fun upsertCard(card: Card)
     suspend fun updateCard(card: Card)
     suspend fun deleteCard(card: Card)
     fun getCardStream(id: Int): Flow<Card?>
@@ -14,9 +15,9 @@ interface CardsRepository {
     fun getCardDataStream(id: Int): Flow<CardData?>
     fun getAllCardDataStream(): Flow<List<CardData>>
 
-    suspend fun insertTranslation(translations: List<Translation>)
-    suspend fun deleteTranslation(translations: List<Translation>)
+    suspend fun insertTranslations(translations: List<Translation>)
+    suspend fun deleteTranslations(translations: List<Translation>)
 
-    suspend fun insertExample(examples: List<Example>)
-    suspend fun deleteExample(examples: List<Example>)
+    suspend fun upsertExamples(examples: List<Example>)
+    suspend fun deleteExamples(examples: List<Example>)
 }

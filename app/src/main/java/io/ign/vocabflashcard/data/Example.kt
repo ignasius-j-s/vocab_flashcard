@@ -19,7 +19,7 @@ import androidx.room.PrimaryKey
 data class Example(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val example: String,
+    var example: String,
     @ColumnInfo(name = "card_id")
     val cardId: Int,
 )

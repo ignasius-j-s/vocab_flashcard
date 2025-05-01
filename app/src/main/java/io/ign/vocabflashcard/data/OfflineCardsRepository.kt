@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 class OfflineCardsRepository(private val cardDao: CardDao) : CardsRepository {
     override suspend fun insertCard(card: Card) = cardDao.insert(card)
+    override suspend fun upsertCard(card: Card) = cardDao.upsert(card)
     override suspend fun updateCard(card: Card) = cardDao.update(card)
     override suspend fun deleteCard(card: Card) = cardDao.delete(card)
     override fun getCardStream(id: Int): Flow<Card?> = cardDao.get(id)
@@ -14,12 +15,12 @@ class OfflineCardsRepository(private val cardDao: CardDao) : CardsRepository {
     override fun getCardDataStream(id: Int): Flow<CardData?> = cardDao.getData(id)
     override fun getAllCardDataStream(): Flow<List<CardData>> = cardDao.getAllData()
 
-    override suspend fun insertTranslation(translations: List<Translation>) =
-        cardDao.insertTranslation(translations)
+    override suspend fun insertTranslations(translations: List<Translation>) =
+        cardDao.insertTranslations(translations)
 
-    override suspend fun deleteTranslation(translations: List<Translation>) =
-        cardDao.deleteTranslation(translations)
+    override suspend fun deleteTranslations(translations: List<Translation>) =
+        cardDao.deleteTranslations(translations)
 
-    override suspend fun insertExample(examples: List<Example>) = cardDao.insertExample(examples)
-    override suspend fun deleteExample(examples: List<Example>) = cardDao.deleteExample(examples)
+    override suspend fun upsertExamples(examples: List<Example>) = cardDao.upsertExamples(examples)
+    override suspend fun deleteExamples(examples: List<Example>) = cardDao.deleteExamples(examples)
 }

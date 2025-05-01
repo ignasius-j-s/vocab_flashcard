@@ -7,12 +7,16 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(card: Card)
+
+    @Upsert
+    suspend fun upsert(card: Card)
 
     @Update
     suspend fun update(card: Card)
@@ -40,15 +44,15 @@ interface CardDao {
     @Query("SELECT * from cards ORDER BY term ASC")
     fun getAllData(): Flow<List<CardData>>
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertTranslation(translation: List<Translation>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertTranslations(translation: List<Translation>)
 
     @Delete
-    suspend fun deleteTranslation(translations: List<Translation>)
+    suspend fun deleteTranslations(translations: List<Translation>)
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertExample(examples: List<Example>)
+    @Upsert
+    suspend fun upsertExamples(examples: List<Example>)
 
     @Delete
-    suspend fun deleteExample(examples: List<Example>)
+    suspend fun deleteExamples(examples: List<Example>)
 }

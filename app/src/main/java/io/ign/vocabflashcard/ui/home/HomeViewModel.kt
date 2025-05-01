@@ -7,6 +7,8 @@ import io.ign.vocabflashcard.data.CardData
 import io.ign.vocabflashcard.data.CardsRepository
 import io.ign.vocabflashcard.data.Deck
 import io.ign.vocabflashcard.data.DecksRepository
+import io.ign.vocabflashcard.data.Example
+import io.ign.vocabflashcard.data.Translation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,15 +21,16 @@ sealed class DialogKind {
     object None : DialogKind()
     object Create : DialogKind()
     class Rename(val renamedDeck: Deck) : DialogKind()
-    class Delete(val deletedDeck: Deck) : DialogKind()
+    class Remove(val deletedDeck: Deck) : DialogKind()
     class Menu(val selectedDeck: Deck, val deckIndex: Int) : DialogKind()
 }
 
 sealed class CardViewKind {
     object None : CardViewKind()
-    class Show(val card: Card) : CardViewKind()
-    class Edit(val card: Card) : CardViewKind()
     class Create(val deckId: Int) : CardViewKind()
+    class Edit(val card: Card) : CardViewKind()
+    class Remove(val card: Card) : CardViewKind()
+    class Show(val card: Card) : CardViewKind()
 }
 
 class HomeViewModel(
@@ -60,21 +63,15 @@ class HomeViewModel(
     }
 
     fun updateDeck(deck: Deck) {
-        viewModelScope.launch {
-            decksRepository.updateDeck(deck)
-        }
+        viewModelScope.launch { decksRepository.updateDeck(deck) }
     }
 
     fun deleteDeck(deck: Deck) {
-        viewModelScope.launch {
-            decksRepository.deleteDeck(deck)
-        }
+        viewModelScope.launch { decksRepository.deleteDeck(deck) }
     }
 
     fun swapDeckOrder(deck1: Deck, deck2: Deck) {
-        viewModelScope.launch {
-            decksRepository.swapDeckOrder(deck1, deck2)
-        }
+        viewModelScope.launch { decksRepository.swapDeckOrder(deck1, deck2) }
     }
 
     fun fetchCardsStream(deckId: Int, searchQuery: String? = null): Flow<List<Card>> {
@@ -100,7 +97,7 @@ class HomeViewModel(
     }
 
     fun deleteDeckDialog(deck: Deck) {
-        _deckDialogState.value = DialogKind.Delete(deck)
+        _deckDialogState.value = DialogKind.Remove(deck)
     }
 
     fun menuDeckDialog(deck: Deck, index: Int) {
@@ -115,6 +112,10 @@ class HomeViewModel(
         _cardViewState.value = CardViewKind.Edit(card)
     }
 
+    fun removeCard(card: Card) {
+        _cardViewState.value = CardViewKind.Remove(card)
+    }
+
     fun newCard(deckId: Int) {
         _cardViewState.value = CardViewKind.Create(deckId)
     }
@@ -123,9 +124,19 @@ class HomeViewModel(
         _cardViewState.value = CardViewKind.None
     }
 
-    fun insertCard(card: Card) {
+    fun saveCardData(data: CardData) {
         viewModelScope.launch {
-            cardsRepository.insertCard(card)
+            cardsRepository.upsertCard(data.card)
+            cardsRepository.insertTranslations(data.translationList)
+            cardsRepository.upsertExamples(data.exampleList)
         }
+    }
+
+    fun deleteCardTranslations(translations: List<Translation>) {
+        viewModelScope.launch { cardsRepository.deleteTranslations(translations) }
+    }
+
+    fun deleteCardExamples(examples: List<Example>) {
+        viewModelScope.launch { cardsRepository.deleteExamples(examples) }
     }
 }

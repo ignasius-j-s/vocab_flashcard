@@ -41,19 +41,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,10 +66,10 @@ import io.ign.vocabflashcard.data.Card
 import io.ign.vocabflashcard.data.CardData
 import io.ign.vocabflashcard.data.Deck
 import io.ign.vocabflashcard.ui.AppViewModelProvider
-import io.ign.vocabflashcard.ui.CustomTextField
+import io.ign.vocabflashcard.ui.CardModalBottomSheet
+import io.ign.vocabflashcard.ui.UnderlinedTextField
 import io.ign.vocabflashcard.ui.navigation.NavigationDestination
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
 
 object HomeScreenDestination : NavigationDestination {
     override val route = "home"
@@ -151,14 +147,35 @@ fun HomeScreen(
                 note = "",
                 deckId = (cardViewState as CardViewKind.Create).deckId
             )
+            val cardData = CardData(card)
             CardModalBottomSheet(
-                card,
+                cardData,
                 onDismiss = { viewModel.hideCardView() },
-                onOkClick = { card -> viewModel.insertCard(card) }
+                onOkClick = { cardData, tl, ex -> viewModel.saveCardData(cardData) }
             )
         }
 
-        is CardViewKind.Show -> CardDataDialog((cardViewState as CardViewKind.Show).card, viewModel)
+        is CardViewKind.Edit -> {
+            val card = (cardViewState as CardViewKind.Edit).card
+            val cardData by viewModel.fetchCardDataStream(card.id)
+                .filterNotNull()
+                .collectAsState(initial = CardData(card))
+
+            CardModalBottomSheet(
+                cardData,
+                onDismiss = { viewModel.hideCardView() },
+                onOkClick = { cardData, translationDeleteList, exampleDeleteList ->
+                    viewModel.saveCardData(cardData)
+                    viewModel.deleteCardTranslations(translationDeleteList)
+                    viewModel.deleteCardExamples(exampleDeleteList)
+                }
+            )
+        }
+
+        is CardViewKind.Show -> CardDetailsDialog(
+            (cardViewState as CardViewKind.Show).card,
+            viewModel
+        )
 
         else -> viewModel.hideCardView()
     }
@@ -399,7 +416,7 @@ fun DeckDialog(
     var title: @Composable (() -> Unit)? = null
     var icon: @Composable (() -> Unit)? = null
     var text: @Composable (() -> Unit)? = {
-        CustomTextField(
+        UnderlinedTextField(
             value = deckName,
             onValueChange = {
                 enableOkButton = it.isNotBlank()
@@ -420,7 +437,7 @@ fun DeckDialog(
             onOkClick = { viewModel.updateDeck(dialogKind.renamedDeck.copy(name = deckName)) }
         }
 
-        is DialogKind.Delete -> {
+        is DialogKind.Remove -> {
             title = { Text(stringResource(R.string.deck_delete)) }
             onOkClick = { viewModel.deleteDeck(dialogKind.deletedDeck) }
             enableOkButton = true
@@ -533,78 +550,8 @@ fun DeckDialog(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardModalBottomSheet(
-    card: Card,
-    onOkClick: (Card) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    var cardTerm by remember { mutableStateOf(card.term) }
-    var cardDescription by remember { mutableStateOf(card.description) }
-    var cardNote by remember { mutableStateOf(card.note) }
-    val enableOkButton = cardTerm.isNotBlank() && cardDescription.isNotBlank()
-
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-    ) {
-        val padding = dimensionResource(R.dimen.padding_extra_large)
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = padding)
-        ) {
-            OutlinedButton(
-                onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            onDismiss()
-                        }
-                    }
-                }
-            ) { Text(stringResource(R.string.cancel)) }
-            Button(
-                enabled = enableOkButton,
-                onClick = {
-                    val card =
-                        card.copy(term = cardTerm, description = cardDescription, note = cardNote)
-                    onOkClick(card); onDismiss()
-                }
-            ) { Text(stringResource(R.string.save)) }
-        }
-        Column(
-            modifier = Modifier.padding(padding),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
-        ) {
-            OutlinedTextField(
-                cardTerm,
-                onValueChange = { cardTerm = it },
-                singleLine = true,
-                label = { Text(stringResource(R.string.card_term)) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedTextField(
-                cardDescription,
-                onValueChange = { cardDescription = it },
-                label = { Text(stringResource(R.string.card_description)) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedTextField(
-                cardNote,
-                onValueChange = { cardNote = it },
-                label = { Text(stringResource(R.string.card_note)) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
-}
-
-@Composable
-fun CardDataDialog(card: Card, viewModel: HomeViewModel) {
+fun CardDetailsDialog(card: Card, viewModel: HomeViewModel) {
     val onDismiss = { viewModel.hideCardView() }
     val cardDataState by viewModel.fetchCardDataStream(card.id).filterNotNull()
         .collectAsState(initial = CardData(card))

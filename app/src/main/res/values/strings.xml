@@ -5,9 +5,9 @@
     <string name="deck_rename">Rename deck</string>
     <string name="deck_delete">Delete deck</string>
     <string name="deck_delete_confirmation">This deck will be permanently removed</string>
-    <string name="deck_empty">There is no deck yet.</string>
+    <string name="deck_empty">Empty deck</string>
     <string name="card_new">New card</string>
-    <string name="card_empty">No card.</string>
+    <string name="card_empty">Empty card</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
@@ -19,4 +19,8 @@
     <string name="card_term">Term</string>
     <string name="card_description">Description</string>
     <string name="card_note">Note</string>
+    <string name="translation">Translation</string>
+    <string name="example">Example usage</string>
+    <string name="example_add">Add example</string>
+    <string name="translation_add">Add translation</string>
 </resources>
