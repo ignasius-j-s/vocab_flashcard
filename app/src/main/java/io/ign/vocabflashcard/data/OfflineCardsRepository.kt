@@ -24,6 +24,6 @@ class OfflineCardsRepository(private val cardDao: CardDao) : CardsRepository {
     override suspend fun deleteTranslations(translations: List<Translation>) =
         cardDao.deleteTranslations(translations)
 
-    override suspend fun upsertExamples(examples: List<Example>) = cardDao.upsertExamples(examples)
-    override suspend fun deleteExamples(examples: List<Example>) = cardDao.deleteExamples(examples)
+    override suspend fun upsertUsages(usages: List<Usage>) = cardDao.upsertUsages(usages)
+    override suspend fun deleteUsages(usages: List<Usage>) = cardDao.deleteUsages(usages)
 }

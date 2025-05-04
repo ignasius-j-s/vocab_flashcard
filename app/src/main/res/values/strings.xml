@@ -19,8 +19,8 @@
     <string name="card_term">Term</string>
     <string name="card_description">Description</string>
     <string name="card_note">Note</string>
-    <string name="translation">Translation</string>
-    <string name="example">Example usage</string>
-    <string name="example_add">Add example</string>
+    <string name="translation">Translations</string>
     <string name="translation_add">Add translation</string>
+    <string name="usage">Usages</string>
+    <string name="usage_add">Add usage example</string>
 </resources>

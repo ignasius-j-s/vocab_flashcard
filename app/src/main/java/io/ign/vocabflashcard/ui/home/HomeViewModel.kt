@@ -7,7 +7,7 @@ import io.ign.vocabflashcard.data.CardData
 import io.ign.vocabflashcard.data.CardsRepository
 import io.ign.vocabflashcard.data.Deck
 import io.ign.vocabflashcard.data.DecksRepository
-import io.ign.vocabflashcard.data.Example
+import io.ign.vocabflashcard.data.Usage
 import io.ign.vocabflashcard.data.Translation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -132,7 +132,7 @@ class HomeViewModel(
         viewModelScope.launch { cardsRepository.deleteTranslations(translations) }
     }
 
-    fun deleteCardExamples(examples: List<Example>) {
-        viewModelScope.launch { cardsRepository.deleteExamples(examples) }
+    fun deleteCardUsages(usages: List<Usage>) {
+        viewModelScope.launch { cardsRepository.deleteUsages(usages) }
     }
 }

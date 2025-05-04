@@ -53,7 +53,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -151,7 +150,7 @@ fun HomeScreen(
             CardModalBottomSheet(
                 cardData,
                 onDismiss = { viewModel.hideCardView() },
-                onOkClick = { cardData, tl, ex -> viewModel.saveCardData(cardData) }
+                onOkClick = { cardData, tl, usg -> viewModel.saveCardData(cardData) }
             )
         }
 
@@ -164,10 +163,10 @@ fun HomeScreen(
             CardModalBottomSheet(
                 cardData,
                 onDismiss = { viewModel.hideCardView() },
-                onOkClick = { cardData, translationDeleteList, exampleDeleteList ->
+                onOkClick = { cardData, translationDeleteList, usageDeleteList ->
                     viewModel.saveCardData(cardData)
                     viewModel.deleteCardTranslations(translationDeleteList)
-                    viewModel.deleteCardExamples(exampleDeleteList)
+                    viewModel.deleteCardUsages(usageDeleteList)
                 }
             )
         }
@@ -445,7 +444,7 @@ fun DeckDialog(
                 Icon(
                     imageVector = Icons.Outlined.Warning,
                     contentDescription = stringResource(R.string.deck_delete),
-                    tint = Color(0xFFEF5350)
+                    tint = MaterialTheme.colorScheme.error
                 )
             }
             text = {

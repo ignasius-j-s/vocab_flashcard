@@ -43,7 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.CardData
-import io.ign.vocabflashcard.data.Example
+import io.ign.vocabflashcard.data.Usage
 import io.ign.vocabflashcard.data.Translation
 import kotlinx.coroutines.launch
 
@@ -51,23 +51,23 @@ import kotlinx.coroutines.launch
 @Composable
 fun CardModalBottomSheet(
     data: CardData,
-    onOkClick: (CardData, List<Translation>, List<Example>) -> Unit,
+    onOkClick: (CardData, List<Translation>, List<Usage>) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var cardTerm by remember { mutableStateOf(data.card.term) }
     var cardDescription by remember { mutableStateOf(data.card.description) }
     var cardNote by remember { mutableStateOf(data.card.note) }
     var translationList = remember { mutableStateListOf<Translation>() }
-    var exampleList = remember { mutableStateListOf<Example>() }
+    var usageList = remember { mutableStateListOf<Usage>() }
 
     translationList.addAll(data.translationList)
-    exampleList.addAll(data.exampleList)
+    usageList.addAll(data.usageList)
 
     var translationDeleteList = remember { mutableStateListOf<Translation>() }
-    var exampleDeleteList = remember { mutableStateListOf<Example>() }
+    var usageDeleteList = remember { mutableStateListOf<Usage>() }
 
     val enableOkButton = cardTerm.isNotBlank() && cardDescription.isNotBlank()
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -95,8 +95,8 @@ fun CardModalBottomSheet(
                         description = cardDescription,
                         note = cardNote
                     )
-                    val cardData = CardData(card, translationList, exampleList)
-                    onOkClick(cardData, translationDeleteList, exampleDeleteList)
+                    val cardData = CardData(card, translationList, usageList)
+                    onOkClick(cardData, translationDeleteList, usageDeleteList)
                     onDismiss()
                 }
             ) { Text(stringResource(R.string.save)) }
@@ -204,9 +204,9 @@ fun CardModalBottomSheet(
                 }
             }
             HorizontalDivider()
-            Text(stringResource(R.string.example), style = MaterialTheme.typography.labelMedium)
-            exampleList.forEachIndexed { index, ex ->
-                var value by remember { mutableStateOf(ex.example) }
+            Text(stringResource(R.string.usage), style = MaterialTheme.typography.labelMedium)
+            usageList.forEachIndexed { index, usg ->
+                var value by remember { mutableStateOf(usg.usage) }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
                     verticalAlignment = Alignment.CenterVertically,
@@ -215,23 +215,23 @@ fun CardModalBottomSheet(
                         value = value,
                         onValueChange = {
                             value = it
-                            exampleList[index] = ex.copy(example = value)
+                            usageList[index] = usg.copy(usage = value)
                         },
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(
                         onClick = {
-                            exampleList.remove(ex)
-                            if (data.exampleList.contains(ex)) exampleDeleteList.add(ex)
+                            usageList.remove(usg)
+                            if (data.usageList.contains(usg)) usageDeleteList.add(usg)
                         }
                     ) { Icon(Icons.Outlined.Clear, null) }
                 }
             }
             Button(
-                onClick = { exampleList.add(Example(example = "", cardId = data.card.id)) },
+                onClick = { usageList.add(Usage(usage = "", cardId = data.card.id)) },
                 shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius)),
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text(stringResource(R.string.example_add)) }
+            ) { Text(stringResource(R.string.usage_add)) }
         }
     }
 }

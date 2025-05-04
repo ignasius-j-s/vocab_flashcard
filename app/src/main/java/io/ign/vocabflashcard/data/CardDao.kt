@@ -49,11 +49,11 @@ interface CardDao {
         if (cardData.card.id == 0) {
             val cardId = insert(cardData.card).toInt()
             upsertTranslations(cardData.translationList.map { it.copy(cardId = cardId) })
-            upsertExamples(cardData.exampleList.map { it.copy(cardId = cardId) })
+            upsertUsages(cardData.usageList.map { it.copy(cardId = cardId) })
         } else {
             update(cardData.card)
             upsertTranslations(cardData.translationList)
-            upsertExamples(cardData.exampleList)
+            upsertUsages(cardData.usageList)
         }
     }
 
@@ -64,8 +64,8 @@ interface CardDao {
     suspend fun deleteTranslations(translations: List<Translation>)
 
     @Upsert
-    suspend fun upsertExamples(examples: List<Example>)
+    suspend fun upsertUsages(usages: List<Usage>)
 
     @Delete
-    suspend fun deleteExamples(examples: List<Example>)
+    suspend fun deleteUsages(usages: List<Usage>)
 }

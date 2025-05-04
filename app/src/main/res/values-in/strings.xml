@@ -21,7 +21,7 @@
     <string name="card_description">Deskripsi</string>
     <string name="card_note">Catatan</string>
     <string name="translation">Terjemahan</string>
-    <string name="example">Contoh penggunaan</string>
-    <string name="example_add">Tambahkan contoh</string>
     <string name="translation_add">Tambahkan terjemahan</string>
+    <string name="usage">Penggunaan</string>
+    <string name="usage_add">Tambahkan penggunaan</string>
 </resources>

@@ -8,5 +8,5 @@ data class CardData(
     @Relation(entityColumn = "card_id", parentColumn = "id")
     val translationList: List<Translation> = emptyList(),
     @Relation(entityColumn = "card_id", parentColumn = "id")
-    val exampleList: List<Example> = emptyList(),
+    val usageList: List<Usage> = emptyList(),
 )

@@ -16,10 +16,10 @@ import androidx.room.PrimaryKey
     )],
     indices = [Index("card_id")]
 )
-data class Example(
+data class Usage(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    var example: String,
+    val usage: String,
     @ColumnInfo(name = "card_id")
     val cardId: Int,
 )

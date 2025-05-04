@@ -8,7 +8,7 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 @Database(
-    entities = [Deck::class, Card::class, Translation::class, Example::class],
+    entities = [Deck::class, Card::class, Translation::class, Usage::class],
     version = 1,
     exportSchema = false
 )

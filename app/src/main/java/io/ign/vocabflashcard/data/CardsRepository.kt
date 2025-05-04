@@ -19,6 +19,6 @@ interface CardsRepository {
     suspend fun insertTranslations(translations: List<Translation>)
     suspend fun deleteTranslations(translations: List<Translation>)
 
-    suspend fun upsertExamples(examples: List<Example>)
-    suspend fun deleteExamples(examples: List<Example>)
+    suspend fun upsertUsages(usages: List<Usage>)
+    suspend fun deleteUsages(usages: List<Usage>)
 }
