@@ -17,10 +17,12 @@ import androidx.room.PrimaryKey
     indices = [Index("deck_id")]
 )
 data class Card(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     @ColumnInfo(collate = ColumnInfo.NOCASE)
     val term: String,
     val description: String,
     val note: String = "",
-    @ColumnInfo(name = "deck_id") val deckId: Int,
+    @ColumnInfo(name = "deck_id")
+    val deckId: Int,
 )

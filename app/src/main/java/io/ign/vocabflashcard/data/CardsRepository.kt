@@ -14,6 +14,7 @@ interface CardsRepository {
 
     fun getCardDataStream(id: Int): Flow<CardData?>
     fun getAllCardDataStream(): Flow<List<CardData>>
+    suspend fun upsertCardData(cardData: CardData)
 
     suspend fun insertTranslations(translations: List<Translation>)
     suspend fun deleteTranslations(translations: List<Translation>)

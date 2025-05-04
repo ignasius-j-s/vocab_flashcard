@@ -242,7 +242,7 @@ fun DeckItem(
                 onClick = { onClick(deck) },
                 onLongClick = { viewModel.menuDeckDialog(deck, index) },
             )
-            .padding(dimensionResource(R.dimen.padding_medium))
+            .padding(dimensionResource(R.dimen.padding_small))
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),

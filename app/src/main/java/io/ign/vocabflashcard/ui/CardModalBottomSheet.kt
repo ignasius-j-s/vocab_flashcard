@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import io.ign.vocabflashcard.R
 import io.ign.vocabflashcard.data.CardData
 import io.ign.vocabflashcard.data.Example
@@ -141,12 +143,24 @@ fun CardModalBottomSheet(
                         label = {
                             Text(tl.translation, style = MaterialTheme.typography.labelMedium)
                         },
-                        trailingIcon = { Icon(imageVector = Icons.Outlined.Clear, null) }
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Clear,
+                                contentDescription = null,
+                                modifier = Modifier.size(MaterialTheme.typography.labelMedium.fontSize.value.dp)
+                            )
+                        }
                     )
                 }
                 AssistChip(
                     onClick = { translationDialog = true },
-                    label = { Icon(Icons.Outlined.Add, null) }
+                    label = {
+                        Icon(
+                            imageVector = Icons.Outlined.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(MaterialTheme.typography.labelMedium.fontSize.value.dp)
+                        )
+                    }
                 )
                 if (translationDialog) {
                     val onDismiss = {
@@ -191,14 +205,18 @@ fun CardModalBottomSheet(
             }
             HorizontalDivider()
             Text(stringResource(R.string.example), style = MaterialTheme.typography.labelMedium)
-            exampleList.forEach { ex ->
+            exampleList.forEachIndexed { index, ex ->
+                var value by remember { mutableStateOf(ex.example) }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     OutlinedTextField(
-                        value = ex.example,
-                        onValueChange = { ex.example = it },
+                        value = value,
+                        onValueChange = {
+                            value = it
+                            exampleList[index] = ex.copy(example = value)
+                        },
                         modifier = Modifier.weight(1f)
                     )
                     IconButton(

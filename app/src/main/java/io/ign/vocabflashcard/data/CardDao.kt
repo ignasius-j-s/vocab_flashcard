@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CardDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(card: Card)
+    suspend fun insert(card: Card): Long
 
     @Upsert
     suspend fun upsert(card: Card)
@@ -44,8 +44,21 @@ interface CardDao {
     @Query("SELECT * from cards ORDER BY term ASC")
     fun getAllData(): Flow<List<CardData>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertTranslations(translation: List<Translation>)
+    @Transaction
+    suspend fun upsertData(cardData: CardData) {
+        if (cardData.card.id == 0) {
+            val cardId = insert(cardData.card).toInt()
+            upsertTranslations(cardData.translationList.map { it.copy(cardId = cardId) })
+            upsertExamples(cardData.exampleList.map { it.copy(cardId = cardId) })
+        } else {
+            update(cardData.card)
+            upsertTranslations(cardData.translationList)
+            upsertExamples(cardData.exampleList)
+        }
+    }
+
+    @Upsert
+    suspend fun upsertTranslations(translation: List<Translation>)
 
     @Delete
     suspend fun deleteTranslations(translations: List<Translation>)

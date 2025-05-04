@@ -3,7 +3,9 @@ package io.ign.vocabflashcard.data
 import kotlinx.coroutines.flow.Flow
 
 class OfflineCardsRepository(private val cardDao: CardDao) : CardsRepository {
-    override suspend fun insertCard(card: Card) = cardDao.insert(card)
+    override suspend fun insertCard(card: Card) {
+        cardDao.insert(card)
+    }
     override suspend fun upsertCard(card: Card) = cardDao.upsert(card)
     override suspend fun updateCard(card: Card) = cardDao.update(card)
     override suspend fun deleteCard(card: Card) = cardDao.delete(card)
@@ -14,9 +16,10 @@ class OfflineCardsRepository(private val cardDao: CardDao) : CardsRepository {
 
     override fun getCardDataStream(id: Int): Flow<CardData?> = cardDao.getData(id)
     override fun getAllCardDataStream(): Flow<List<CardData>> = cardDao.getAllData()
+    override suspend fun upsertCardData(cardData: CardData) = cardDao.upsertData(cardData)
 
     override suspend fun insertTranslations(translations: List<Translation>) =
-        cardDao.insertTranslations(translations)
+        cardDao.upsertTranslations(translations)
 
     override suspend fun deleteTranslations(translations: List<Translation>) =
         cardDao.deleteTranslations(translations)

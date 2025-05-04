@@ -124,12 +124,8 @@ class HomeViewModel(
         _cardViewState.value = CardViewKind.None
     }
 
-    fun saveCardData(data: CardData) {
-        viewModelScope.launch {
-            cardsRepository.upsertCard(data.card)
-            cardsRepository.insertTranslations(data.translationList)
-            cardsRepository.upsertExamples(data.exampleList)
-        }
+    fun saveCardData(cardData: CardData) {
+        viewModelScope.launch { cardsRepository.upsertCardData(cardData) }
     }
 
     fun deleteCardTranslations(translations: List<Translation>) {
