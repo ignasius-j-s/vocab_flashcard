@@ -98,7 +98,6 @@ fun HomeScreen(
                     )
                 },
                 onClick = { viewModel.createDeckDialog() },
-                shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius)),
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
             )
         }
@@ -234,60 +233,62 @@ fun DeckItem(
         Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.secondaryContainer,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius))
             )
             .combinedClickable(
                 onClick = { onClick(deck) },
                 onLongClick = { viewModel.menuDeckDialog(deck, index) },
             )
-            .padding(dimensionResource(R.dimen.padding_small))
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensionResource(R.dimen.padding_medium)),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(25.dp)
                         .background(
-                            color = MaterialTheme.colorScheme.secondary,
+                            color = MaterialTheme.colorScheme.primary,
                             shape = CircleShape
                         )
+                        .size(dimensionResource(R.dimen.card_count_size))
                 ) {
                     Text(
                         "${cardList.size}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSecondary,
+                        color = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
                 Text(
                     deck.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = { viewModel.updateDeck(deck.copy(expanded = !deck.expanded)) }) {
-                    if (deck.expanded) {
-                        Icon(
-                            imageVector = Icons.Outlined.KeyboardArrowDown,
-                            contentDescription = "hide"
-                        )
+                IconButton(
+                    onClick = { viewModel.updateDeck(deck.copy(expanded = !deck.expanded)) },
+                    modifier = Modifier.size(dimensionResource(R.dimen.card_count_size)),
+                ) {
+                    val imageVector = if (deck.expanded) {
+                        Icons.Outlined.KeyboardArrowDown
                     } else {
-                        Icon(
-                            imageVector = Icons.Outlined.KeyboardArrowUp,
-                            contentDescription = "show"
-                        )
+                        Icons.Outlined.KeyboardArrowUp
                     }
+                    Icon(
+                        imageVector = imageVector,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
                 }
             }
             AnimatedVisibility(
@@ -295,12 +296,11 @@ fun DeckItem(
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
-                ) {
-                    val height = 50.dp
+                Column {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = dimensionResource(R.dimen.padding_small)),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
                     ) {
@@ -320,13 +320,13 @@ fun DeckItem(
                             },
                             modifier = Modifier
                                 .weight(1f)
-                                .height(height)
+                                .height(dimensionResource(R.dimen.card_search_text_field_height))
                         )
                         Button(
                             onClick = { viewModel.newCard(deck.id) },
                             shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius)),
                             contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
-                            modifier = Modifier.height(height)
+                            modifier = Modifier.height(dimensionResource(R.dimen.card_search_text_field_height))
                         ) {
                             Icon(Icons.Outlined.Add, null)
                             Text(
@@ -352,6 +352,7 @@ fun DeckItem(
                         val pagerState = rememberPagerState(pageCount = { cardList.size })
                         HorizontalPager(
                             state = pagerState,
+                            contentPadding = PaddingValues(dimensionResource(R.dimen.padding_small)),
                             pageSpacing = dimensionResource(R.dimen.padding_small)
                         ) { currentPage ->
                             Box(modifier = modifier) {
@@ -371,14 +372,14 @@ fun CardItem(
     viewModel: HomeViewModel,
 ) {
     Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
-            .clickable { viewModel.showCard(card) }
             .background(
-                color = MaterialTheme.colorScheme.tertiaryContainer,
+                color = MaterialTheme.colorScheme.secondary,
                 shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius))
-            ),
-        contentAlignment = Alignment.Center
+            )
+            .clickable { viewModel.showCard(card) }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -388,14 +389,14 @@ fun CardItem(
             Text(
                 card.term,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                color = MaterialTheme.colorScheme.onSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
                 card.description,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                color = MaterialTheme.colorScheme.onSecondary,
             )
         }
     }

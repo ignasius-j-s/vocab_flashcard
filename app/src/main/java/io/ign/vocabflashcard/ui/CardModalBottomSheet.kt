@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -101,11 +103,12 @@ fun CardModalBottomSheet(
                 }
             ) { Text(stringResource(R.string.save)) }
         }
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
         val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
-                .padding(padding),
+                .padding(start = padding, end = padding, bottom = padding),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
         ) {
             OutlinedTextField(
@@ -223,7 +226,8 @@ fun CardModalBottomSheet(
                         onClick = {
                             usageList.remove(usg)
                             if (data.usageList.contains(usg)) usageDeleteList.add(usg)
-                        }
+                        },
+                        modifier = Modifier.size(MaterialTheme.typography.labelLarge.fontSize.value.dp)
                     ) { Icon(Icons.Outlined.Clear, null) }
                 }
             }
