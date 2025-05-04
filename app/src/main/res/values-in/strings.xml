@@ -20,8 +20,8 @@
     <string name="card_term">Istilah</string>
     <string name="card_description">Deskripsi</string>
     <string name="card_note">Catatan</string>
-    <string name="translation">Translasi</string>
+    <string name="translation">Terjemahan</string>
     <string name="example">Contoh penggunaan</string>
     <string name="example_add">Tambahkan contoh</string>
-    <string name="translation_add">Tambahkan translasi</string>
+    <string name="translation_add">Tambahkan terjemahan</string>
 </resources>
