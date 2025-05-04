@@ -53,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -228,14 +229,15 @@ fun DeckItem(
     var searchQuery by remember { mutableStateOf("") }
     val cardList by viewModel.fetchCardsStream(deck.id, searchQuery)
         .collectAsState(initial = emptyList())
-
+    val roundCornerShape = RoundedCornerShape(dimensionResource(R.dimen.round_radius))
     Box(
         Modifier
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius))
+                shape = roundCornerShape
             )
+            .clip(roundCornerShape)
             .combinedClickable(
                 onClick = { onClick(deck) },
                 onLongClick = { viewModel.menuDeckDialog(deck, index) },
@@ -371,14 +373,16 @@ fun CardItem(
     card: Card,
     viewModel: HomeViewModel,
 ) {
+    val roundCornerShape = RoundedCornerShape(dimensionResource(R.dimen.round_radius))
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
             .background(
                 color = MaterialTheme.colorScheme.secondary,
-                shape = RoundedCornerShape(dimensionResource(R.dimen.round_radius))
+                shape = roundCornerShape
             )
+            .clip(roundCornerShape)
             .clickable { viewModel.showCard(card) }
     ) {
         Column(
